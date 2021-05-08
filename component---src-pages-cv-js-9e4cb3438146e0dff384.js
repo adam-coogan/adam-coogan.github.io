@@ -1,0 +1,2 @@
+(self.webpackChunkgatsby_starter_hello_world=self.webpackChunkgatsby_starter_hello_world||[]).push([[576],{1898:function(e,r,l){"use strict";l.r(r);var t=l(7294);r.default=function(){return t.createElement("div",null,t.createElement("h1",null,"CV"),t.createElement("p",null,"Click"," ",t.createElement("a",{rel:"noopener noreferrer",href:"/pdf/cv-adam-coogan.pdf",target:"_blank"},"here")," ","to download my CV as a PDF."))}}}]);
+//# sourceMappingURL=component---src-pages-cv-js-9e4cb3438146e0dff384.js.map

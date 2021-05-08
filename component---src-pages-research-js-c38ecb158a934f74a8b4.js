@@ -1,0 +1,2 @@
+(self.webpackChunkgatsby_starter_hello_world=self.webpackChunkgatsby_starter_hello_world||[]).push([[236],{9374:function(e,t,l){"use strict";l.r(t);var n=l(7294);t.default=function(){return n.createElement("div",null,n.createElement("h1",null,"Research"),n.createElement("p",null,"You can find all my publications on"," ",n.createElement("a",{href:"https://inspirehep.net/authors/1631088?ui-citation-summary=true"},"InspireHEP"),"."))}}}]);
+//# sourceMappingURL=component---src-pages-research-js-c38ecb158a934f74a8b4.js.map
