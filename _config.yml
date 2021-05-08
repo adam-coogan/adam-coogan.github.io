@@ -4,8 +4,8 @@ title: Your Name
 description: subtitle | affiliations | motto
 
 baseurl: /gradfolio #name of GitHub repository
-url: #custom url to be used instead of GitHub repository
-email: #
+url: https://adam-coogan.github.io #custom url to be used instead of GitHub repository
+email: dr.adam.coogan@gmail.com #
 
 
 highlighter: rouge
