@@ -1,9 +1,20 @@
-import React from "react"
+import { StaticImage } from "gatsby-plugin-image";
+import React from "react";
+import Layout from "../components/layout";
 
-export default function About() {
+const About = () => {
   return (
-    <div>
-      <h1>About me</h1>
+    <Layout>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <StaticImage
+          src="../images/adam-switzerland.jpeg"
+          alt="Me in the Swiss Alps"
+          placeholder="blurred"
+          layout="fixed"
+          width={500}
+          style={{ textAlign: "center" }}
+        />
+      </div>
       <p>
         I am currently a postdoctoral researcher at the GRAPPA institute at the
         University of Amsterdam. I did my Ph.D. at the University of California,
@@ -13,10 +24,12 @@ export default function About() {
         15 minute drive outside of Providence.
       </p>
       <p>
-        Outside of physics, I really like rock climbing (particularly
-        bouldering), being outdoors, sailing, cooking lots of different types of
-        food, learning languages and traveling.
+        Outside of physics, I like rock climbing (particularly bouldering),
+        being outdoors, sailing, cooking lots of different types of food,
+        learning languages and traveling.
       </p>
-    </div>
-  )
-}
+    </Layout>
+  );
+};
+
+export default About;

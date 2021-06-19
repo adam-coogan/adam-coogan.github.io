@@ -1,9 +1,9 @@
 import React from "react"
+import Layout from "../components/layout";
 
 const CV = () => {
   return (
-    <div>
-      <h1>CV</h1>
+    <Layout>
       <p>
         Click{" "}
         <a
@@ -15,7 +15,7 @@ const CV = () => {
         </a>{" "}
         to download my CV as a PDF.
       </p>
-    </div>
+    </Layout>
   )
 }
 
