@@ -8,16 +8,22 @@ const HeaderItem = styled.li`
   padding: 8px;
 `;
 
-const NavLink = (props) => {
-  return <Link activeStyle={{ color: "red" }} {...props} />;
-};
+const NavLink = styled(Link)`
+  color: white;
+  font-size: 18;
+  text-decoration: none;
+`;
 
 const Header = () => {
   return (
-    <header style={{ display: "flex", alignItems: "center" }}>
-      <h1 style={{ display: "inline" }}>
-        <Link to="/">Adam Coogan</Link>
-      </h1>
+    <header
+      style={{
+        display: "flex",
+        alignItems: "center",
+        backgroundColor: "#F45B2B",
+      }}
+    >
+      <NavLink to="/">Adam Coogan</NavLink>
 
       <nav>
         <ul>

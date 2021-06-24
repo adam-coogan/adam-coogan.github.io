@@ -7,19 +7,16 @@ import Header from "./header";
 const GlobalStyle = createGlobalStyle`
   body {
     font-family: "Open Sans", sans-serif;
+    margin: 0px;
   }
-`;
-
-const ContentContainer = styled.div`
-  margin-bottom: 6rem;
 `;
 
 const Layout = ({ children }) => {
   return (
-    <div style={{ margin: "auto", width: "85%" }}>
+    <div>
       <GlobalStyle />
       <Header />
-      <ContentContainer>{children}</ContentContainer>
+      <div>{children}</div>
       <Footer />
     </div>
   );
