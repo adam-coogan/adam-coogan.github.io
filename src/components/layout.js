@@ -1,24 +1,25 @@
-import "@fontsource/open-sans/300.css"; // Defaults to weight 400 with all styles included.
+import "@fontsource/open-sans";
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
-import Footer from "./footer";
+import { createGlobalStyle } from "styled-components";
 import Header from "./header";
 
 const GlobalStyle = createGlobalStyle`
   body {
     font-family: "Open Sans", sans-serif;
     margin: 0px;
+    font-weight: 300;
+    width: 100%;
+    background-color: #f45b2b;
   }
 `;
 
 const Layout = ({ children }) => {
   return (
-    <div>
+    <>
       <GlobalStyle />
       <Header />
-      <div>{children}</div>
-      <Footer />
-    </div>
+      <>{children}</>
+    </>
   );
 };
 

@@ -1,60 +1,40 @@
-import { StaticImage } from "gatsby-plugin-image";
 import React from "react";
-import Layout from "../components/layout";
 import styled from "styled-components";
+import Layout from "../components/layout";
+import Intro from "../components/intro";
+import Research from "../components/research";
+import Papers from "../components/papers";
+import Sierras from "../components/sierras";
+import Code from "../components/code";
+import NonWork from "../components/nonwork";
 
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: center;
-  align-items: center;
+// TODO: HACK to get anchor offset right...
+const Anchor = styled.a`
+  display: block;
+  position: relative;
+  top: -39px;
+  visibility: hidden;
 `;
 
 const Home = () => {
   return (
     <Layout>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
-        }}
-      >
-        <Column>
-          <StaticImage
-            src="../images/adam-switzerland.jpeg"
-            alt="Me in the Swiss Alps"
-            placeholder="blurred"
-            layout="fixed"
-            width={720}
-            style={{ textAlign: "center" }}
-          />
-        </Column>
-        <Column>
-          <div style={{ width: "80%" }}>
-            <h1>Hello, I'm Adam Coogan.</h1>
-            <p>
-              I'm a physicist interested in finding dark matter using a variety
-              of astrophysical observations. I do this by unlocking new ways to
-              analyze complex data using machine learning and statistics and by
-              developing better physics models.
-            </p>
-            <p>
-              I am currently a postdoc at the{" "}
-              <a href="http://grappa.amsterdam">GRAPPA institute</a> at the
-              University of Amsterdam. I will be joining the cosmology and
-              machine learning group at{" "}
-              <a href="https://phys.umontreal.ca/english/home/">
-                Université de Montréal
-              </a>{" "}
-              and <a href="https://mila.quebec/en/">Mila</a> in fall 2021.
-              Before my current position, I did my PhD at UC Santa Cruz. Prior
-              to that I was an undergraduate at Brown University.
-            </p>
-          </div>
-        </Column>
-      </div>
+      <Anchor id="intro"></Anchor>
+      <Intro />
+
+      <Anchor id="research"></Anchor>
+      <Research />
+
+      <Anchor id="papers"></Anchor>
+      <Papers />
+
+      <Sierras />
+
+      <Anchor id="code"></Anchor>
+      <Code />
+
+      <Anchor id="non-work"></Anchor>
+      <NonWork />
     </Layout>
   );
 };

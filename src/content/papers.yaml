@@ -1,0 +1,89 @@
+- title: Strong-lensing source reconstruction with variationally optimised Gaussian processes
+  authors:
+    - Konstantin Karchev
+    - Adam Coogan
+    - Christoph Weniger
+  journal: Submitted
+  arxiv: 2105.09465
+  tags:
+    - lensing
+    - machine-learning
+
+- title: Targeted Likelihood-Free Inference of Dark Matter Substructure in Strongly-Lensed Galaxies
+  authors:
+    - Adam Coogan
+    - Konstantin Karchev
+    - Christoph Weniger
+  journal: NeurIPS workshop on Machine Learning and the Physical Sciences (2020)
+  arxiv: 2010.07032
+  tags:
+    - lensing
+    - machine-learning
+
+- title: "Differentiable Strong Lensing: Uniting Gravity and Neural Nets through Differentiable Probabilistic Programming"
+  authors:
+    - Marco Chianese
+    - Adam Coogan
+    - Paul Hofma
+    - Sydney Otten
+    - Christoph Weniger
+  journal: Monthly Notices of the Royal Astronomical Society 496 (2020) 1, 381-393
+  arxiv: 1910.06157
+  tags:
+    - lensing
+    - machine-learning
+
+- title: Primordial Black Holes as Silver Bullets for New Physics at the Weak Scale
+  authors:
+    - Gianfranco Bertone
+    - Adam Coogan
+    - Daniele Gaggero
+    - Bradley J. Kavanagh
+    - Christoph Weniger
+  journal: Physical Review D 100 (2019) 12, 123013
+  arxiv: 1905.01238
+  tags:
+    - gravitational-waves
+    - indirect-detection
+
+- title: Direct Detection of Hawking Radiation from Asteroid-Mass Primordial Black Holes
+  authors:
+    - Adam Coogan
+    - Logan Morrison
+    - Stefano Profumo
+  journal: Physical Review Letters 126 (2021) 17, 171101
+  arxiv: 2010.04797
+  tags:
+    - indirect-detection
+
+- title: "Hazma: A Python Toolkit for Studying Indirect Detection of Sub-GeV Dark Matter"
+  authors:
+    - Adam Coogan
+    - Logan Morrison
+    - Stefano Profumo
+  journal: Journal of Cosmology and Astroparticle Physics 01 (2020) 056
+  arxiv: 1907.11846
+  tags:
+    - indirect-detection
+
+- title: Origin of the tentative AMS antihelium events
+  authors:
+    - Adam Coogan
+    - Stefano Profumo
+  journal: Physical Review D 96 (2017) 8, 083020 • [arXiv]
+  arxiv: 1705.09664
+  tags:
+    - indirect-detection
+
+- title: Antihelium from Dark Matter
+  authors:
+    - Eric Carlson
+    - Adam Coogan
+    - Tim Linden
+    - Stefano Profumo
+    - Alejandro Ibarra
+    - Sebastian Wild
+  journal: Physical Review D 89 (2014) 7, 076005
+  arxiv: 1401.2461
+  tags:
+    - indirect-detection
