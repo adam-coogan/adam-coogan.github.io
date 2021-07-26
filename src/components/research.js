@@ -25,7 +25,7 @@ const Text = () => (
     <h1>Research themes</h1>
     <ul>
       <li>
-        <strong>Strong gravitational lensing.</strong> Can we use machine
+        <strong>Strong gravitational lensing.</strong> How can we use machine
         learning to probe the smallest dark matter structures in the universe in
         images of dramatically distorted galaxies?
       </li>
