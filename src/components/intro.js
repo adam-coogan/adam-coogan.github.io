@@ -22,13 +22,13 @@ const Text = () => (
     </p>
     <p>
       I am currently a postdoc at the{" "}
-      <a href="http://grappa.amsterdam">GRAPPA institute</a>, part of the
-      University of Amsterdam. I will be joining the{" "}
       <a href="https://phys.umontreal.ca/english/home/">
         Université de Montréal
       </a>{" "}
-      and <a href="https://mila.quebec/en/">Mila</a> in fall 2021. I did my PhD
-      at UC Santa Cruz and my ScB at Brown University.
+      and <a href="https://mila.quebec/en/">Mila</a>, the Quebec AI Institute.
+      Previously I was a postdoc at <a href="http://grappa.amsterdam">GRAPPA</a>{" "}
+      , an institute in the University of Amsterdam. I did my PhD at UC Santa
+      Cruz and my ScB at Brown University.
     </p>
   </TextContainer>
 );
