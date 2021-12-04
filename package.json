@@ -1,9 +1,10 @@
 {
-  "name": "gatsby-starter-hello-world",
+  "name": "adam-coogan.github.io",
   "private": true,
-  "description": "A simplified bare-bones starter for Gatsby",
+  "description": "Adam Coogan's website",
   "version": "0.1.0",
   "license": "0BSD",
+  "author": "Adam Coogan <dr.adam.coogan@gmail.com",
   "scripts": {
     "build": "gatsby build",
     "deploy": "gatsby build && gh-pages -d public -b main",
@@ -40,9 +41,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gatsbyjs/gatsby-starter-hello-world"
+    "url": "https://github.com/adam-coogan/adam-coogan.github.io"
   },
   "bugs": {
-    "url": "https://github.com/gatsbyjs/gatsby/issues"
+    "url": "https://github.com/adam-coogan/adam-coogan.github.io/issues"
   }
 }
