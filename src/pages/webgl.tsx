@@ -113,15 +113,15 @@ const SourceControls = ({
       label="Position (x) ['']"
       value={x}
       set={setX}
-      min={-5}
-      max={5}
+      min={-2.5}
+      max={2.5}
     />
     <ParamControls
       label="Position (y) ['']"
       value={y}
       set={setY}
-      min={-5}
-      max={5}
+      min={-2.5}
+      max={2.5}
     />
     <ParamControls
       label="Orientation (ϕ) [deg]"
@@ -188,6 +188,37 @@ const LensControls = ({ phiDeg, q, r_ein, setPhiDeg, setQ, setRein }) => (
   </div>
 );
 
+const TelescopeControls = ({ sigma_n, setSigmaN, setRes }) => (
+  <div>
+    <h2>Telescope</h2>
+    <ParamControls
+      label="Noise level"
+      value={sigma_n}
+      set={setSigmaN}
+      min={0}
+      max={2.5}
+      description="Telescope noise level"
+    />
+    <div>
+      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.012)}>
+        ELT
+      </button>
+      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.031)}>
+        JWST
+      </button>
+      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.05)}>
+        Hubble Space Telescope
+      </button>
+      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.1)}>
+        Euclid
+      </button>
+      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.7)}>
+        Rubin Observatory
+      </button>
+    </div>
+  </div>
+);
+
 /*
  * Initialize shaders and program.
  */
@@ -229,11 +260,15 @@ const Page = () => {
   const [phi_lDeg, setPhilDeg] = useState(57.296);
   const [q_l, setQl] = useState(0.75);
   const [r_ein, setRein] = useState(1.5);
+  // Telescope parameters
+  const [res, setRes] = useState(0.1);
+  const [sigma_n, setSigmaN] = useState(0);
   // Misc constants
   const canvasDim = 500;
-  const obsSize = 2.5; // arcsec
   const minFlux = -3;
   const maxFlux = 18;
+  const targetRange = 2.5; // arcsec
+  const range = (Math.ceil((2 * targetRange) / res) * res) / 2; // arcsec
 
   const draw = (gl: WebGLRenderingContext) => {
     const program = init(gl);
@@ -266,7 +301,7 @@ const Page = () => {
     gl.uniform1f(rEinLoc, r_ein);
     // Set image coordinate range
     const rangeLoc = gl.getUniformLocation(program, "u_range");
-    gl.uniform1f(rangeLoc, obsSize);
+    gl.uniform1f(rangeLoc, range);
     // Set color range
     const minFluxLoc = gl.getUniformLocation(program, "u_min_flux");
     const maxFluxLoc = gl.getUniformLocation(program, "u_max_flux");
@@ -315,6 +350,11 @@ const Page = () => {
         setPhiDeg={setPhilDeg}
         setQ={setQl}
         setRein={setRein}
+      />
+      <TelescopeControls
+        sigma_n={sigma_n}
+        setSigmaN={setSigmaN}
+        setRes={setRes}
       />
     </div>
   );
