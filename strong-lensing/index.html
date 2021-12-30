@@ -1,0 +1,815 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="ie=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta name="generator" content="Gatsby 3.14.6"/><style data-styled="" data-styled-version="5.3.0"></style><style>.gatsby-image-wrapper{position:relative;overflow:hidden}.gatsby-image-wrapper img{bottom:0;height:100%;left:0;margin:0;max-width:none;padding:0;position:absolute;right:0;top:0;width:100%;object-fit:cover}.gatsby-image-wrapper [data-main-image]{opacity:0;transform:translateZ(0);transition:opacity .25s linear;will-change:opacity}.gatsby-image-wrapper-constrained{display:inline-block;vertical-align:top}</style><noscript><style>.gatsby-image-wrapper noscript [data-main-image]{opacity:1!important}.gatsby-image-wrapper [data-placeholder-image]{opacity:0!important}</style></noscript><script type="module">const e="undefined"!=typeof HTMLImageElement&&"loading"in HTMLImageElement.prototype;e&&document.body.addEventListener("load",(function(e){if(void 0===e.target.dataset.mainImage)return;if(void 0===e.target.dataset.gatsbyImageSsr)return;const t=e.target;let a=null,n=t;for(;null===a&&n;)void 0!==n.parentNode.dataset.gatsbyImageWrapper&&(a=n.parentNode),n=n.parentNode;const o=a.querySelector("[data-placeholder-image]"),r=new Image;r.src=t.currentSrc,r.decode().catch((()=>{})).then((()=>{t.style.opacity=1,o&&(o.style.opacity=0,o.style.transition="opacity 500ms linear")}))}),!0);</script><link as="script" rel="preload" href="/webpack-runtime-e3c9171849d7f648824e.js"/><link as="script" rel="preload" href="/framework-02e76b0fadead4f3970b.js"/><link as="script" rel="preload" href="/app-ddceb14b7b2cc085f64e.js"/><link as="script" rel="preload" href="/065bff26c6394da972b0e6d3236dd9498f000ec5-782694fa04997e0fb71e.js"/><link as="script" rel="preload" href="/component---src-pages-strong-lensing-tsx-d555cbcfae59ae21e965.js"/><link as="fetch" rel="preload" href="/page-data/strong-lensing/page-data.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/app-data.json" crossorigin="anonymous"/></head><body><div id="___gatsby"><div style="outline:none" tabindex="-1" id="gatsby-focus-wrapper"><div style="display:flex;flex-direction:row"><div style="display:flex;flex-direction:column;align-items:left;padding:0.5rem"><div><h2 data-tip="true" data-for="sourceHeaderTT">Source</h2><div class="__react_component_tooltip tc5487b8c-b055-4472-b0d8-4738ff9bcc41 place-top type-dark" id="sourceHeaderTT" data-id="tooltip"><style aria-hidden="true">
+  	.tc5487b8c-b055-4472-b0d8-4738ff9bcc41 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-top {
+        margin-top: -10px;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-bottom {
+        margin-top: 10px;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-left {
+        margin-left: -10px;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-right {
+        margin-left: 10px;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .tc5487b8c-b055-4472-b0d8-4738ff9bcc41.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Source galaxy with no lensing</div><canvas width="480" height="480"></canvas></div><div><h2>Source parameters</h2><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem">Position (x) [&#x27;&#x27;]</label><input type="text" style="flex:1;margin:0.2rem;min-width:0" min="-5" max="5" step="0.001" value="0.05"/><input type="range" style="flex:3;margin:0.2rem" min="-5" max="5" step="0.001" value="0.05"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem">Position (y) [&#x27;&#x27;]</label><input type="text" style="flex:1;margin:0.2rem;min-width:0" min="-5" max="5" step="0.001" value="0.1"/><input type="range" style="flex:3;margin:0.2rem" min="-5" max="5" step="0.001" value="0.1"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Orientation of source relative to x-axis">Orientation (ϕ) [deg]</label><div class="__react_component_tooltip t0afbdccc-8d54-40d0-87de-ffd7efebaef9 place-top type-dark" id="Orientation of source relative to x-axis" data-id="tooltip"><style aria-hidden="true">
+  	.t0afbdccc-8d54-40d0-87de-ffd7efebaef9 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-top {
+        margin-top: -10px;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-bottom {
+        margin-top: 10px;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-left {
+        margin-left: -10px;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-right {
+        margin-left: 10px;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t0afbdccc-8d54-40d0-87de-ffd7efebaef9.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Orientation of source relative to x-axis</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="-180" max="180" step="0.001" value="40.107"/><input type="range" style="flex:3;margin:0.2rem" min="-180" max="180" step="0.001" value="40.107"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Controls whether source is circular (q=1) or elliptical (q=0)">Ellipticity (q)</label><div class="__react_component_tooltip t9a43065c-0dd1-49aa-ad35-829370afa8c6 place-top type-dark" id="Controls whether source is circular (q=1) or elliptical (q=0)" data-id="tooltip"><style aria-hidden="true">
+  	.t9a43065c-0dd1-49aa-ad35-829370afa8c6 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-top {
+        margin-top: -10px;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-bottom {
+        margin-top: 10px;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-left {
+        margin-left: -10px;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-right {
+        margin-left: 10px;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t9a43065c-0dd1-49aa-ad35-829370afa8c6.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Controls whether source is circular (q=1) or elliptical (q=0)</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="0.15" max="0.9999" step="0.001" value="0.5"/><input type="range" style="flex:3;margin:0.2rem" min="0.15" max="0.9999" step="0.001" value="0.5"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Higher values cause source brightness to decrease sharply with radius">Index</label><div class="__react_component_tooltip t4cc78896-9266-4705-b815-0d7d00d43f5a place-top type-dark" id="Higher values cause source brightness to decrease sharply with radius" data-id="tooltip"><style aria-hidden="true">
+  	.t4cc78896-9266-4705-b815-0d7d00d43f5a {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t4cc78896-9266-4705-b815-0d7d00d43f5a.place-top {
+        margin-top: -10px;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-bottom {
+        margin-top: 10px;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-left {
+        margin-left: -10px;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-right {
+        margin-left: 10px;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t4cc78896-9266-4705-b815-0d7d00d43f5a.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Higher values cause source brightness to decrease sharply with radius</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="0.5" max="5" step="0.001" value="4"/><input type="range" style="flex:3;margin:0.2rem" min="0.5" max="5" step="0.001" value="4"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Sets the size of the source">Size (r_e) [&#x27;&#x27;]</label><div class="__react_component_tooltip t562fe26b-d347-4d8b-9983-b033455b5178 place-top type-dark" id="Sets the size of the source" data-id="tooltip"><style aria-hidden="true">
+  	.t562fe26b-d347-4d8b-9983-b033455b5178 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t562fe26b-d347-4d8b-9983-b033455b5178.place-top {
+        margin-top: -10px;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-bottom {
+        margin-top: 10px;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-left {
+        margin-left: -10px;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-right {
+        margin-left: 10px;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t562fe26b-d347-4d8b-9983-b033455b5178.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Sets the size of the source</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="0.0001" max="10" step="0.001" value="5"/><input type="range" style="flex:3;margin:0.2rem" min="0.0001" max="10" step="0.001" value="5"/></div></div><div><h2>Telescope</h2><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Telescope noise level">Noise level</label><div class="__react_component_tooltip t188c2ff5-2ce5-4b96-b635-5b36dc06a68e place-top type-dark" id="Telescope noise level" data-id="tooltip"><style aria-hidden="true">
+  	.t188c2ff5-2ce5-4b96-b635-5b36dc06a68e {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-top {
+        margin-top: -10px;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-bottom {
+        margin-top: 10px;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-left {
+        margin-left: -10px;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-right {
+        margin-left: 10px;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t188c2ff5-2ce5-4b96-b635-5b36dc06a68e.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Telescope noise level</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="0" max="2.5" step="0.001" value="0"/><input type="range" style="flex:3;margin:0.2rem" min="0" max="2.5" step="0.001" value="0"/></div><div><button style="margin:0.1rem">ELT</button><button style="margin:0.1rem">JWST</button><button style="margin:0.1rem">Hubble Space Telescope</button><button style="margin:0.1rem">Euclid</button><button style="margin:0.1rem">Rubin Observatory</button></div></div></div><div style="display:flex;flex-direction:column;align-items:left;padding:0.5rem"><div><h2 data-tip="true" data-for="obsHeaderTT">Observation</h2><div class="__react_component_tooltip t75ef38f1-04bd-4c09-848d-e42e51d9c5b9 place-top type-dark" id="obsHeaderTT" data-id="tooltip"><style aria-hidden="true">
+  	.t75ef38f1-04bd-4c09-848d-e42e51d9c5b9 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-top {
+        margin-top: -10px;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-bottom {
+        margin-top: 10px;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-left {
+        margin-left: -10px;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-right {
+        margin-left: 10px;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t75ef38f1-04bd-4c09-848d-e42e51d9c5b9.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Observation of lensed galaxy seen by telescope</div><canvas width="480" height="480"></canvas></div><div><h2>Lens parameters</h2><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Orientation of lens relative to x-axis">Orientation (ϕ) [deg]</label><div class="__react_component_tooltip tc00dd667-adcd-4810-86da-31418e853b30 place-top type-dark" id="Orientation of lens relative to x-axis" data-id="tooltip"><style aria-hidden="true">
+  	.tc00dd667-adcd-4810-86da-31418e853b30 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.tc00dd667-adcd-4810-86da-31418e853b30.place-top {
+        margin-top: -10px;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-bottom {
+        margin-top: 10px;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-left {
+        margin-left: -10px;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-right {
+        margin-left: 10px;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .tc00dd667-adcd-4810-86da-31418e853b30.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Orientation of lens relative to x-axis</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="-180" max="180" step="0.001" value="57.296"/><input type="range" style="flex:3;margin:0.2rem" min="-180" max="180" step="0.001" value="57.296"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Controls whether lens is circular (q=1) or elliptical (q=0)">Ellipticity (q)</label><div class="__react_component_tooltip t44839a34-93d9-41f3-b4ee-172cc7caff37 place-top type-dark" id="Controls whether lens is circular (q=1) or elliptical (q=0)" data-id="tooltip"><style aria-hidden="true">
+  	.t44839a34-93d9-41f3-b4ee-172cc7caff37 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t44839a34-93d9-41f3-b4ee-172cc7caff37.place-top {
+        margin-top: -10px;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-bottom {
+        margin-top: 10px;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-left {
+        margin-left: -10px;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-right {
+        margin-left: 10px;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t44839a34-93d9-41f3-b4ee-172cc7caff37.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Controls whether lens is circular (q=1) or elliptical (q=0)</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="0.15" max="0.9999" step="0.001" value="0.75"/><input type="range" style="flex:3;margin:0.2rem" min="0.15" max="0.9999" step="0.001" value="0.75"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Sets the size of the lens">Einstein radius (r_ein)</label><div class="__react_component_tooltip tb5f74413-9202-421d-9f18-c2ac24b3c5ca place-top type-dark" id="Sets the size of the lens" data-id="tooltip"><style aria-hidden="true">
+  	.tb5f74413-9202-421d-9f18-c2ac24b3c5ca {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-top {
+        margin-top: -10px;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-bottom {
+        margin-top: 10px;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-left {
+        margin-left: -10px;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-right {
+        margin-left: 10px;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .tb5f74413-9202-421d-9f18-c2ac24b3c5ca.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Sets the size of the lens</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="0.0001" max="2.5" step="0.001" value="1.5"/><input type="range" style="flex:3;margin:0.2rem" min="0.0001" max="2.5" step="0.001" value="1.5"/></div></div><div><h2>Subhalo parameters</h2><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem">Position (x) [&#x27;&#x27;]</label><input type="text" style="flex:1;margin:0.2rem;min-width:0" min="-2.5" max="2.5" step="0.001" value="-1.1"/><input type="range" style="flex:3;margin:0.2rem" min="-2.5" max="2.5" step="0.001" value="-1.1"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem">Position (y) [&#x27;&#x27;]</label><input type="text" style="flex:1;margin:0.2rem;min-width:0" min="-2.5" max="2.5" step="0.001" value="-1.1"/><input type="range" style="flex:3;margin:0.2rem" min="-2.5" max="2.5" step="0.001" value="-1.1"/></div><div style="display:flex;align-items:center"><label style="flex:2;margin:0.2rem" data-tip="true" data-for="Subhalo mass in radius where density is 200 times rho_cr">Mass (M_200c) [M_sun]</label><div class="__react_component_tooltip t16b60373-094c-4fb9-a652-859307c4b51e place-top type-dark" id="Subhalo mass in radius where density is 200 times rho_cr" data-id="tooltip"><style aria-hidden="true">
+  	.t16b60373-094c-4fb9-a652-859307c4b51e {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t16b60373-094c-4fb9-a652-859307c4b51e.place-top {
+        margin-top: -10px;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-bottom {
+        margin-top: 10px;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-left {
+        margin-left: -10px;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-right {
+        margin-left: 10px;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t16b60373-094c-4fb9-a652-859307c4b51e.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  </style>Subhalo mass in radius where density is 200 times rho_cr</div> <input type="text" style="flex:1;margin:0.2rem;min-width:0" min="100000" max="31622776601.683792" step="0.001" value="10000000000"/><input type="range" style="flex:3;margin:0.2rem" min="100000" max="31622776601.683792" step="0.001" value="10000000000"/></div></div></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/strong-lensing/";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-0565ca6ac20a5deb9ca1.js"],"app":["/app-ddceb14b7b2cc085f64e.js"],"component---src-pages-index-js":["/component---src-pages-index-js-3467db73e9537d080958.js"],"component---src-pages-strong-lensing-tsx":["/component---src-pages-strong-lensing-tsx-d555cbcfae59ae21e965.js"],"component---src-pages-webgl-tsx":["/component---src-pages-webgl-tsx-abca5d9628ab8ecaca54.js"]};/*]]>*/</script><script src="/polyfill-0565ca6ac20a5deb9ca1.js" nomodule=""></script><script src="/component---src-pages-strong-lensing-tsx-d555cbcfae59ae21e965.js" async=""></script><script src="/065bff26c6394da972b0e6d3236dd9498f000ec5-782694fa04997e0fb71e.js" async=""></script><script src="/app-ddceb14b7b2cc085f64e.js" async=""></script><script src="/framework-02e76b0fadead4f3970b.js" async=""></script><script src="/webpack-runtime-e3c9171849d7f648824e.js" async=""></script></body></html>
