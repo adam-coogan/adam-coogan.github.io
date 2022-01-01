@@ -35,7 +35,8 @@
     "react-obfuscate": "^3.6.8",
     "react-tooltip": "^4.2.21",
     "scale-color-perceptual": "^1.1.2",
-    "styled-components": "^5.3.0"
+    "styled-components": "^5.3.0",
+    "twgl.js": "^4.21.2"
   },
   "devDependencies": {
     "gh-pages": "^3.1.0",
