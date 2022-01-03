@@ -3,17 +3,19 @@ import ReactTooltip from "react-tooltip";
 import { fsLensSource, getFSPost, vsSource } from "../utils/shaders";
 import { createProgram, createShader } from "../utils/webglutils";
 import { randn } from "../utils/utils";
-// import twgl from "twgl.js";
+import * as twgl from "twgl.js"; // weird import structure
+
+twgl.setDefaults({ attribPrefix: "a_" });
 
 /*
  * The plan
  * --------
- * - Switch to twgl
- * - Separate initialization and drawing steps
- * - Figure out how to show source
- * - Add subhalo
- * - Show lens ellipse and subhalo dot
- * - Show difference between images with and without subhalo
+ * -[X] Switch to twgl
+ * -[ ] Separate initialization and drawing steps
+ * -[ ] Figure out how to show source
+ * -[ ] Add subhalo
+ * -[ ] Show lens ellipse and subhalo dot
+ * -[ ] Show difference between images with and without subhalo
  */
 
 // Generate post-processesing shader
@@ -310,145 +312,90 @@ const Page = () => {
   );
 
   const draw = (gl: WebGLRenderingContext) => {
-    const lensProgram = initProgram(gl, vsSource, fsLensSource);
-    const postProgram = initProgram(gl, vsSource, fsPostSource);
+    const lensProgInfo = twgl.createProgramInfo(gl, [vsSource, fsLensSource]);
+    const postProgInfo = twgl.createProgramInfo(gl, [vsSource, fsPostSource]);
 
-    gl.useProgram(lensProgram);
+    // Set up positions
+    const bufferInfo = twgl.createBufferInfoFromArrays(gl, {
+      position: {
+        numComponents: 2,
+        data: [-1, -1, 1, -1, -1, 1, -1, 1, 1, 1, 1, -1],
+      },
+    });
+    twgl.setBuffersAndAttributes(gl, lensProgInfo, bufferInfo);
 
+    // Do the lensing
+    gl.useProgram(lensProgInfo.program);
     // Set source parameters
-    const xSLoc = gl.getUniformLocation(lensProgram, "u_x_s");
-    const ySLoc = gl.getUniformLocation(lensProgram, "u_y_s");
-    const phiSLoc = gl.getUniformLocation(lensProgram, "u_phi_s");
-    const qSLoc = gl.getUniformLocation(lensProgram, "u_q_s");
-    const indexLoc = gl.getUniformLocation(lensProgram, "u_index");
-    const rELoc = gl.getUniformLocation(lensProgram, "u_r_e");
-    const IELoc = gl.getUniformLocation(lensProgram, "u_I_e");
-    gl.uniform1f(xSLoc, x_s);
-    gl.uniform1f(ySLoc, y_s);
-    gl.uniform1f(phiSLoc, (phi_sDeg * Math.PI) / 180);
-    gl.uniform1f(qSLoc, q_s);
-    gl.uniform1f(indexLoc, index);
-    gl.uniform1f(rELoc, r_e);
-    gl.uniform1f(IELoc, I_e);
-    // Set main lens parameters
-    const xLLoc = gl.getUniformLocation(lensProgram, "u_x_l");
-    const yLLoc = gl.getUniformLocation(lensProgram, "u_y_l");
-    const phiLLoc = gl.getUniformLocation(lensProgram, "u_phi_l");
-    const qLLoc = gl.getUniformLocation(lensProgram, "u_q_l");
-    const rEinLoc = gl.getUniformLocation(lensProgram, "u_r_ein");
-    gl.uniform1f(xLLoc, x_l);
-    gl.uniform1f(yLLoc, y_l);
-    gl.uniform1f(phiLLoc, (phi_lDeg * Math.PI) / 180);
-    gl.uniform1f(qLLoc, q_l);
-    gl.uniform1f(rEinLoc, r_ein);
-    // Set image coordinate range
-    gl.uniform1f(gl.getUniformLocation(lensProgram, "u_range"), range);
-    // Set intermediate flux range
-    gl.uniform1f(gl.getUniformLocation(lensProgram, "u_max_flux"), maxFlux);
-
-    // Create texture
-    const fluxTex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, fluxTex);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      nPixFine,
-      nPixFine,
-      0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      null
-    );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    // Create framebuffer
-    const framebuffer = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    // Attach texture
-    gl.framebufferTexture2D(
-      gl.FRAMEBUFFER,
-      gl.COLOR_ATTACHMENT0,
-      gl.TEXTURE_2D,
-      fluxTex,
-      0
-    );
+    const lensUniforms = {
+      u_x_s: x_s,
+      u_y_s: y_s,
+      u_phi_s: (phi_sDeg * Math.PI) / 180,
+      u_q_s: q_s,
+      u_index: index,
+      u_r_e: r_e,
+      u_I_e: I_e,
+      u_x_l: x_l,
+      u_y_l: y_l,
+      u_phi_l: (phi_lDeg * Math.PI) / 180,
+      u_q_l: q_l,
+      u_r_ein: r_ein,
+      u_range: range,
+      u_max_flux: maxFlux,
+    };
+    twgl.setUniforms(lensProgInfo, lensUniforms);
+    // Create framebuffer texture to render to
     gl.viewport(0, 0, nPixFine, nPixFine);
-
-    // Set up vertex buffer
-    const vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    // Associate shader attributes with data buffers
-    const posAttribLoc = gl.getAttribLocation(lensProgram, "a_position");
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); // make sure correct buffer is bound
-    gl.vertexAttribPointer(posAttribLoc, 2, gl.FLOAT, false, 0, 0); // how to extract data
-    gl.enableVertexAttribArray(posAttribLoc); // turn attribute on
-
+    // TODO: checkFramebufferStatus?
+    console.assert(
+      gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE,
+      "framebuffer is not ready to display"
+    );
+    const fb = twgl.createFramebufferInfo(
+      gl,
+      [
+        {
+          format: gl.RGBA,
+          type: gl.UNSIGNED_BYTE,
+          min: gl.NEAREST,
+          mag: gl.NEAREST,
+          wrap: gl.CLAMP_TO_EDGE,
+        },
+      ],
+      nPixFine,
+      nPixFine
+    );
     // Draw to framebuffer texture
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, 1, 1, -1]),
-      gl.STATIC_DRAW // never changes
-    );
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    twgl.drawBufferInfo(gl, bufferInfo);
 
-    // Unbind framebuffer
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.viewport(0, 0, nPix, nPix);
+    // Unbind framebuffer to switch to drawing to canvas
+    twgl.bindFramebufferInfo(gl, null);
 
-    // Next, apply PSF, pixelation and noise
-    gl.useProgram(postProgram);
-
-    // Set number of pixels for average pooling
-    const nPixFineLoc = gl.getUniformLocation(postProgram, "u_n_pix_fine");
-    gl.uniform1f(nPixFineLoc, nPixFine);
-    const nPixLoc = gl.getUniformLocation(postProgram, "u_n_pix");
-    gl.uniform1f(nPixLoc, nPix);
-    // TODO: put noise into a texture, unrescale and add
-    gl.uniform1f(
-      gl.getUniformLocation(postProgram, "u_noise_range"),
-      noiseRange
-    );
-    gl.uniform1f(gl.getUniformLocation(postProgram, "u_sigma_n"), sigma_n);
-    // Set intermediate flux range
-    gl.uniform1f(gl.getUniformLocation(postProgram, "u_max_flux"), maxFlux);
-    // Set flux scale
-    gl.uniform1f(gl.getUniformLocation(postProgram, "u_low_flux"), lowFlux);
-    gl.uniform1f(gl.getUniformLocation(postProgram, "u_high_flux"), highFlux);
-
-    // Set up flux texture
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, fluxTex);
-    gl.uniform1i(gl.getUniformLocation(postProgram, "u_flux_tex"), 0);
-
-    // Put into texture
-    const noiseTex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + 1);
-    gl.bindTexture(gl.TEXTURE_2D, noiseTex);
-    // See https://webglfundamentals.org/webgl/lessons/webgl-data-textures.html
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.LUMINANCE,
-      nPix,
-      nPix,
-      0,
-      gl.LUMINANCE,
-      gl.UNSIGNED_BYTE,
-      noiseArray
-    );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    // Pass to shader
-    gl.uniform1i(gl.getUniformLocation(postProgram, "u_noise_tex"), 1);
-
-    // Draw to canvas
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    // Apply PSF, pixelation and noise and draw to canvas
+    gl.useProgram(postProgInfo.program);
+    // Create noise texture
+    const noiseTex = twgl.createTexture(gl, {
+      format: gl.LUMINANCE,
+      min: gl.NEAREST,
+      mag: gl.NEAREST,
+      wrap: gl.CLAMP_TO_EDGE,
+      width: nPix,
+      height: nPix,
+      src: noiseArray,
+    });
+    const postUniforms = {
+      u_n_pix_fine: nPixFine,
+      u_n_pix: nPix,
+      u_noise_range: noiseRange,
+      u_sigma_n: sigma_n,
+      u_max_flux: maxFlux,
+      u_low_flux: lowFlux,
+      u_high_flux: highFlux,
+      u_flux_tex: fb.attachments[0],
+      u_noise_tex: noiseTex,
+    };
+    twgl.setUniforms(postProgInfo, postUniforms);
+    twgl.drawBufferInfo(gl, bufferInfo);
   };
 
   return (
