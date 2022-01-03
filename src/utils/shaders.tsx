@@ -13,12 +13,12 @@ uniform float u_range;
 uniform vec2 u_translation;
 
 varying vec2 v_xy;
-varying vec2 v_texcoord;
+// varying vec2 v_texcoord; // DEBUG
 
 void main() {
   gl_PointSize = 1.0;
   v_xy = a_position * u_range; // image coordinates
-  v_texcoord = a_position * 0.5 + 0.5; // texture coordinates
+  // v_texcoord = a_position * 0.5 + 0.5; // texture coordinates
   gl_Position = vec4(a_position, 0, 1);
 }
 `;
@@ -40,13 +40,39 @@ uniform float u_y_l;
 uniform float u_phi_l;
 uniform float u_q_l;
 uniform float u_r_ein;
+// Subhalo parameters
+uniform float u_x_sh;
+uniform float u_y_sh;
+uniform float u_rho_s;
+uniform float u_r_s;
+uniform float u_tau;
 // Intermediate flux scale
 uniform float u_max_flux;
 
 // Image positions
 varying vec2 v_xy;
-
 // varying vec2 v_texcoord;
+
+// Subhalo and lens constants
+// TODO: generate shader with correct constants
+float pi = 3.1415926535;
+float s_min = 1e-12;
+float G_over_c2 = 4.79e-20; // Mpc / MSol
+float zSrc = 2.5;
+float dASrc = 1704.8621; // Mpc
+float dALens = 1420.2484; // Mpc
+float dComovingSrc = 5967.0171; // Mpc
+float dComovingLens = 2272.3975; // Mpc
+float dALS = (dComovingSrc - dComovingLens) / (1.0 + zSrc);
+float Sigma_cr = 1.0 / (4.0 * pi * G_over_c2 * dALens * dALS / dASrc);
+
+float log10(float x) {
+  return log(x) / 2.302585093;
+}
+
+float acosh(float x) {
+  return log(x + sqrt(x * x - 1.0));
+}
 
 float sersic(float x, float y) {
   // Position relative to source
@@ -85,16 +111,41 @@ vec2 alpha_sie(float x, float y) {
   return vec2(alpha_x, alpha_y);
 }
 
+vec2 alpha_tnfw(float x, float y) {
+  // Convert scale radius to angular scale
+  float theta_s = (u_r_s / dALens) * ((180.0 / pi) * 60.0 * 60.0); // arcsec
+
+  float dx = x - u_x_sh;
+  float dy = y - u_y_sh;
+  float s = sqrt(dx * dx + dy * dy) / theta_s;
+  float f =
+    (s >= 1.0 ? acos(1.0 / s) : acosh(1.0 / s)) /
+    sqrt(abs(s * s - 1.0));
+  float l = log((s + s_min) / (sqrt(s * s + u_tau * u_tau) + u_tau));
+  float m =
+    ((4.0 * pi * u_tau * u_tau) / ((u_tau * u_tau + 1.0) * (u_tau * u_tau + 1.0))) *
+    ((u_tau * u_tau + 2.0 * s * s - 1.0) * f +
+      pi * u_tau +
+      (u_tau * u_tau - 1.0) * log(u_tau) +
+      sqrt(s * s + u_tau * u_tau) * (((u_tau * u_tau - 1.0) / u_tau) * l - pi));
+  float k_s = (u_rho_s * u_r_s) / Sigma_cr;
+
+  float alpha_scale = (k_s * m) / pi / ((s + s_min) * (s + s_min));
+  return vec2(alpha_scale * dx, alpha_scale * dy);
+}
+
 // Rescales the flux to (0, 1) and sets to R component of color
 vec4 flux_to_r(float flux) {
   float unclipped = flux / u_max_flux;
-  float clipped = step(0.0, unclipped) * step(0.0, 1.0 - unclipped) * unclipped
-      + step(1.0, unclipped);
+  // float clipped = step(0.0, unclipped) * step(0.0, 1.0 - unclipped) * unclipped
+  //     + step(1.0, unclipped);
+  float clipped = unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped);
   return vec4(clipped, 0, 0, 1);
 }
 
 void main() {
-  vec2 xy_lensed = v_xy - alpha_sie(v_xy[0], v_xy[1]);
+  vec2 alpha = alpha_sie(v_xy[0], v_xy[1]) + alpha_tnfw(v_xy[0], v_xy[1]);
+  vec2 xy_lensed = v_xy - alpha;
   float flux = sersic(xy_lensed[0], xy_lensed[1]);
   gl_FragColor = flux_to_r(flux);
 
@@ -116,8 +167,6 @@ void main() {
 export const getFSPost = (upsample: number) => {
   let source = `
 precision mediump float;
-
-varying vec2 v_texcoord;
 
 // Noise-free fluxes
 uniform sampler2D u_flux_tex;
@@ -158,15 +207,16 @@ float unrescale_noise(float n) {
 
 float rescale_clip_flux(float flux) {
   float unclipped = (flux - u_low_flux) / (u_high_flux - u_low_flux);
-  return (
-    step(0.0, unclipped) *
-    step(0.0, 1.0 - unclipped) *
-    unclipped + step(1.0, unclipped)
-  );
+  return (unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped));
+  // return (
+  //   step(0.0, unclipped) *
+  //   step(0.0, 1.0 - unclipped) *
+  //   unclipped + step(1.0, unclipped)
+  // );
 }
 
 vec4 flux_to_noisy_rgba(float flux) {
-  float scaled_noise = texture2D(u_noise_tex, v_texcoord).x;
+  float scaled_noise = texture2D(u_noise_tex, gl_FragCoord.xy / u_n_pix).x;
   float noisy_flux = unrescale_flux(flux) + unrescale_noise(scaled_noise);
   return vec4(viridis(rescale_clip_flux(noisy_flux)), 1);
 }
@@ -190,7 +240,7 @@ void main() {
   }
 
   source += `  ) / ${(upsample ** 2).toFixed(1)};\n`;
-  source += `  gl_FragColor = flux_to_noisy_rgba(avg_flux);`
+  source += `  gl_FragColor = flux_to_noisy_rgba(avg_flux);`;
   source += "\n}";
 
   return source;

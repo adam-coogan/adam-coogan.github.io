@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactTooltip from "react-tooltip";
 import { fsLensSource, getFSPost, vsSource } from "../utils/shaders";
-import { createProgram, createShader } from "../utils/webglutils";
+import { virialToScale } from "../utils/tnfwwebgl";
 import { randn } from "../utils/utils";
 import * as twgl from "twgl.js"; // weird import structure
 
@@ -11,11 +11,12 @@ twgl.setDefaults({ attribPrefix: "a_" });
  * The plan
  * --------
  * -[X] Switch to twgl
- * -[ ] Separate initialization and drawing steps
+ * -[ ] Separate initialization and drawing steps?
  * -[ ] Figure out how to show source
- * -[ ] Add subhalo
+ * -[X] Add subhalo
  * -[ ] Show lens ellipse and subhalo dot
  * -[ ] Show difference between images with and without subhalo
+ * -[ ] Generate subhalo shader with constants matching tsx
  */
 
 // Generate post-processesing shader
@@ -239,29 +240,33 @@ const TelescopeControls = ({ sigma_n, setSigmaN, setRes, resampleNoise }) => (
   </div>
 );
 
-/*
- * Initialize shaders and program.
- */
-const initProgram = (
-  gl: WebGLRenderingContext,
-  vsSource: string,
-  fsSource: string
-) => {
-  // Create shaders
-  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
-  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
-  // Link shaders into a program
-  const program = createProgram(gl, vertexShader, fragmentShader);
-  // Make canvas match display size
-  //resizeCanvasToDisplaySize(gl.canvas);
-  // Tell webgl clip space (-1, +1) maps to (0, width) and (0, height)
-  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  // Set clear color
-  gl.clearColor(0.0, 0.0, 1.0, 0.5);
-  // Clear canvas
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  return program;
-};
+const SHControls = ({ x, y, M_200c, setX, setY, setM200c }) => (
+  <div>
+    <h2>Subhalo parameters</h2>
+    <ParamControls
+      label="Position (x) ['']"
+      value={x}
+      set={setX}
+      min={-2.5}
+      max={2.5}
+    />
+    <ParamControls
+      label="Position (y) ['']"
+      value={y}
+      set={setY}
+      min={-2.5}
+      max={2.5}
+    />
+    <ParamControls
+      label="Mass (M_200c) [M_sun]"
+      value={M_200c}
+      set={setM200c}
+      min={1e5}
+      max={10 ** 10.5}
+      description="Subhalo mass in radius where density is 200 times rho_cr"
+    />
+  </div>
+);
 
 const getNoiseTexArray = (size: number, noiseRange: number) =>
   // Clamp to noise range, then rescale to [0, 1]
@@ -291,6 +296,11 @@ const Page = () => {
   const [phi_lDeg, setPhilDeg] = useState(57.296);
   const [q_l, setQl] = useState(0.75);
   const [r_ein, setRein] = useState(1.5);
+  // Subhalo parameters
+  const [x_sh, setXsh] = useState(-1.1);
+  const [y_sh, setYsh] = useState(-1.1);
+  const [M_200c, setM200c] = useState(1e10);
+  const tau = 6.0;
   // Telescope parameters
   const [res, setRes] = useState(0.1);
   const [sigma_n, setSigmaN] = useState(0.5);
@@ -310,6 +320,9 @@ const Page = () => {
   const [noiseArray, setNoiseArray] = useState(
     getNoiseTexArray(nPix ** 2, noiseRange)
   );
+
+  // Convert from virial to scale subhalo parameters
+  const { rho_s, r_s } = virialToScale(M_200c);
 
   const draw = (gl: WebGLRenderingContext) => {
     const lensProgInfo = twgl.createProgramInfo(gl, [vsSource, fsLensSource]);
@@ -340,6 +353,11 @@ const Page = () => {
       u_phi_l: (phi_lDeg * Math.PI) / 180,
       u_q_l: q_l,
       u_r_ein: r_ein,
+      u_x_sh: x_sh,
+      u_y_sh: y_sh,
+      u_rho_s: rho_s,
+      u_r_s: r_s,
+      u_tau: tau,
       u_range: range,
       u_max_flux: maxFlux,
     };
@@ -431,6 +449,18 @@ const Page = () => {
         setPhiDeg={setPhilDeg}
         setQ={setQl}
         setRein={setRein}
+      />
+      <SHControls
+        x={x_sh}
+        y={y_sh}
+        M_200c={M_200c}
+        // c_200c={c_200c}
+        // tau={tau}
+        setX={setXsh}
+        setY={setYsh}
+        setM200c={setM200c}
+        // setc200c={setc200c}
+        // setTau={setTau}
       />
       <TelescopeControls
         sigma_n={sigma_n}
