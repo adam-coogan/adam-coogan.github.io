@@ -4,6 +4,7 @@ import { fsLensSource, getFSPost, vsSource } from "../utils/shaders";
 import { virialToScale } from "../utils/tnfwwebgl";
 import { randn } from "../utils/utils";
 import * as twgl from "twgl.js"; // weird import structure
+import styled from "styled-components";
 
 twgl.setDefaults({ attribPrefix: "a_" });
 
@@ -11,17 +12,45 @@ twgl.setDefaults({ attribPrefix: "a_" });
  * The plan
  * --------
  * -[X] Switch to twgl
- * -[ ] Separate initialization and drawing steps?
+ * -[X] Style resolution buttons
+ * -[ ] Show subhalo dot
  * -[ ] Figure out how to show source
  * -[X] Add subhalo
- * -[ ] Show lens ellipse and subhalo dot
+ * -[ ] Show lens ellipse
  * -[ ] Show difference between images with and without subhalo
  * -[ ] Generate subhalo shader with constants matching tsx
+ * -[ ] Separate initialization and drawing steps?
  */
 
 // Generate post-processesing shader
 const UPSAMPLE = 4;
 const fsPostSource = getFSPost(UPSAMPLE);
+// Telescope resolutions
+const eltRes = 0.012;
+const jwstRes = 0.031;
+const hstRes = 0.05;
+const euclidRes = 0.1;
+const rubinRes = 0.7;
+
+const Button = styled.button`
+  background-color: ${({ selected }) => (selected ? "#6c757d" : "#ffffff")};
+  border-color: ${({ selected }) => (selected ? "#ffffff" : "#6c757d")};
+  color: ${({ selected }) => (selected ? "#ffffff" : "#6c757d")};
+  margin: 0.2em;
+  padding: 0.5em 1em;
+  border: 2px solid;
+  border-radius: 4px;
+  &:hover {
+    background-color: #a6acb1;
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+  &:active {
+    background-color: #6c757d;
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+`;
 
 const useCanvas = (draw: (gl: WebGLRenderingContext) => void) => {
   const canvasRef = useRef(null);
@@ -81,6 +110,7 @@ const ParamControls = ({
   return (
     <div
       style={{
+        width: "35em",
         display: "flex",
         alignItems: "center",
       }}
@@ -93,7 +123,9 @@ const ParamControls = ({
         max={max}
         step={0.001}
         value={value}
-        onChange={(e) => set(parseFloat(e.target.value))}
+        onChange={(e) => {
+          set(parseFloat(e.target.value));
+        }}
       />
       <input
         style={{ flex: 3, margin: "0.2rem" }}
@@ -203,42 +235,9 @@ const LensControls = ({ phiDeg, q, r_ein, setPhiDeg, setQ, setRein }) => (
   </div>
 );
 
-const TelescopeControls = ({ sigma_n, setSigmaN, setRes, resampleNoise }) => (
-  <div>
-    <h2>Telescope</h2>
-    <ParamControls
-      label="Noise level"
-      value={sigma_n}
-      set={setSigmaN}
-      min={0}
-      max={3.0}
-      description="Telescope noise level"
-    />
-    <button style={{ margin: "0.1rem" }} onClick={() => resampleNoise()}>
-      Resample noise
-    </button>
-    <div>
-      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.012)}>
-        ELT
-      </button>
-      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.031)}>
-        JWST
-      </button>
-      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.05)}>
-        Hubble Space Telescope
-      </button>
-      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.1)}>
-        Euclid
-      </button>
-      <button style={{ margin: "0.1rem" }} onClick={() => setRes(0.7)}>
-        Rubin Observatory
-      </button>
-      <button style={{ margin: "0.1rem" }} onClick={() => setRes(1.25)}>
-        Chunky
-      </button>
-    </div>
-  </div>
-);
+// const ActivatableButton = ({ children, ...props }) => (
+//   <button {...props}>{children}</button>
+// );
 
 const SHControls = ({ x, y, M_200c, setX, setY, setM200c }) => (
   <div>
@@ -258,15 +257,110 @@ const SHControls = ({ x, y, M_200c, setX, setY, setM200c }) => (
       max={2.5}
     />
     <ParamControls
-      label="Mass (M_200c) [M_sun]"
-      value={M_200c}
-      set={setM200c}
-      min={1e5}
-      max={10 ** 10.5}
-      description="Subhalo mass in radius where density is 200 times rho_cr"
+      label="Log10 mass (log10(M_200c)) [M_sun]"
+      value={Math.log10(M_200c)}
+      set={(newVal: number) => setM200c(10 ** newVal)}
+      min={5}
+      max={10.5}
+      description="Subhalo mass in sphere where average density is 200 times rho_cr"
     />
   </div>
 );
+
+const ChangeResButton = ({
+  label,
+  id,
+  resolution,
+  setRes,
+  activeID,
+  setActiveID,
+  description,
+}) => (
+  <>
+    <Button
+      id={id}
+      selected={id === activeID}
+      onClick={() => {
+        setActiveID(id);
+        setRes(resolution);
+      }}
+      data-tip
+      data-for={id}
+    >
+      {label}
+    </Button>
+    <ReactTooltip id={id}>{description}</ReactTooltip>
+  </>
+);
+
+const TelescopeControls = ({ sigma_n, setSigmaN, setRes, resampleNoise }) => {
+  const [activeID, setActiveID] = useState("euclid");
+
+  return (
+    <div>
+      <h2>Telescope</h2>
+      <ParamControls
+        label="Noise level"
+        value={sigma_n}
+        set={setSigmaN}
+        min={0}
+        max={3.0}
+        description="Scale of telescope noise level"
+      />
+      <Button onClick={() => resampleNoise()}>Resample noise</Button>
+      <div>
+        <ChangeResButton
+          label="ELT"
+          id="elt"
+          resolution={eltRes}
+          setRes={setRes}
+          activeID={activeID}
+          setActiveID={setActiveID}
+          description="Extremely Large Telescope, 0.004-0.012'' pixel size"
+        />
+        <ChangeResButton
+          label="JWST"
+          id="jwst"
+          resolution={jwstRes}
+          setRes={setRes}
+          activeID={activeID}
+          setActiveID={setActiveID}
+          description="James Webb Space Telescope, 0.031'' pixel size"
+        />
+        <ChangeResButton
+          label="Hubble Space Telescope"
+          id="hst"
+          resolution={hstRes}
+          setRes={setRes}
+          activeID={activeID}
+          setActiveID={setActiveID}
+          description="0.05'' pixel size"
+        />
+        <ChangeResButton
+          label="Euclid"
+          id="euclid"
+          resolution={euclidRes}
+          setRes={setRes}
+          activeID={activeID}
+          setActiveID={setActiveID}
+          description="0.1'' pixel size"
+        />
+        <ChangeResButton
+          label="Rubin Observatory"
+          id="rubin"
+          resolution={rubinRes}
+          setRes={setRes}
+          activeID={activeID}
+          setActiveID={setActiveID}
+          description="0.7'' seeing"
+        />
+      </div>
+    </div>
+  );
+  // <button style={{ margin: "0.1rem" }} onClick={() => setRes(1.25)}>
+  //   Chunky
+  // </button>
+};
 
 const getNoiseTexArray = (size: number, noiseRange: number) =>
   // Clamp to noise range, then rescale to [0, 1]
@@ -302,7 +396,7 @@ const Page = () => {
   const [M_200c, setM200c] = useState(1e10);
   const tau = 6.0;
   // Telescope parameters
-  const [res, setRes] = useState(0.1);
+  const [res, setRes] = useState(euclidRes);
   const [sigma_n, setSigmaN] = useState(0.5);
   // Intermediate flux scale
   const maxFlux = 23; // TODO: figure out how to reduce flux quantization... :[
@@ -417,63 +511,74 @@ const Page = () => {
   };
 
   return (
-    <div>
-      <Canvas
-        draw={draw}
-        width={nPix}
-        height={nPix}
+    <div style={{ display: "flex", flexDirection: "row" }}>
+      <div
         style={{
-          width: canvasDim,
-          height: canvasDim,
-          imageRendering: "pixelated",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "left",
+          padding: "0.5rem",
         }}
-      />
-      <SourceControls
-        x={x_s}
-        y={y_s}
-        phiDeg={phi_sDeg}
-        q={q_s}
-        index={index}
-        r_e={r_e}
-        setX={setXs}
-        setY={setYs}
-        setPhiDeg={setPhisDeg}
-        setQ={setQs}
-        setIndex={setIndex}
-        setRe={setRe}
-      />
-      <LensControls
-        phiDeg={phi_lDeg}
-        q={q_l}
-        r_ein={r_ein}
-        setPhiDeg={setPhilDeg}
-        setQ={setQl}
-        setRein={setRein}
-      />
-      <SHControls
-        x={x_sh}
-        y={y_sh}
-        M_200c={M_200c}
-        // c_200c={c_200c}
-        // tau={tau}
-        setX={setXsh}
-        setY={setYsh}
-        setM200c={setM200c}
-        // setc200c={setc200c}
-        // setTau={setTau}
-      />
-      <TelescopeControls
-        sigma_n={sigma_n}
-        setSigmaN={setSigmaN}
-        setRes={(res: number) => {
-          setRes(res);
-          const newNPix = getNPix(canvasDim, targetRange, res);
-          setNoiseArray(getNoiseTexArray(newNPix ** 2, noiseRange));
-        }}
-        resampleNoise={() =>
-          setNoiseArray(getNoiseTexArray(nPix ** 2, noiseRange))
-        }
-      />
+      >
+        <SourceControls
+          x={x_s}
+          y={y_s}
+          phiDeg={phi_sDeg}
+          q={q_s}
+          index={index}
+          r_e={r_e}
+          setX={setXs}
+          setY={setYs}
+          setPhiDeg={setPhisDeg}
+          setQ={setQs}
+          setIndex={setIndex}
+          setRe={setRe}
+        />
+        <TelescopeControls
+          sigma_n={sigma_n}
+          setSigmaN={setSigmaN}
+          setRes={(res: number) => {
+            setRes(res);
+            const newNPix = getNPix(canvasDim, targetRange, res);
+            setNoiseArray(getNoiseTexArray(newNPix ** 2, noiseRange));
+          }}
+          resampleNoise={() =>
+            setNoiseArray(getNoiseTexArray(nPix ** 2, noiseRange))
+          }
+        />
+      </div>
+      <div>
+        <Canvas
+          draw={draw}
+          width={nPix}
+          height={nPix}
+          style={{
+            width: canvasDim,
+            height: canvasDim,
+            imageRendering: "pixelated",
+          }}
+        />
+        <LensControls
+          phiDeg={phi_lDeg}
+          q={q_l}
+          r_ein={r_ein}
+          setPhiDeg={setPhilDeg}
+          setQ={setQl}
+          setRein={setRein}
+        />
+        <SHControls
+          x={x_sh}
+          y={y_sh}
+          M_200c={M_200c}
+          // c_200c={c_200c}
+          // tau={tau}
+          setX={setXsh}
+          setY={setYsh}
+          setM200c={setM200c}
+          // setc200c={setc200c}
+          // setTau={setTau}
+        />
+      </div>
     </div>
   );
 };

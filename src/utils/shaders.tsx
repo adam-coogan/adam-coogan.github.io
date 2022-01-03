@@ -34,18 +34,21 @@ uniform float u_q_s;
 uniform float u_index;
 uniform float u_r_e;
 uniform float u_I_e;
+
 // Main lens parameters
 uniform float u_x_l;
 uniform float u_y_l;
 uniform float u_phi_l;
 uniform float u_q_l;
 uniform float u_r_ein;
+
 // Subhalo parameters
 uniform float u_x_sh;
 uniform float u_y_sh;
 uniform float u_rho_s;
 uniform float u_r_s;
 uniform float u_tau;
+
 // Intermediate flux scale
 uniform float u_max_flux;
 
@@ -137,8 +140,6 @@ vec2 alpha_tnfw(float x, float y) {
 // Rescales the flux to (0, 1) and sets to R component of color
 vec4 flux_to_r(float flux) {
   float unclipped = flux / u_max_flux;
-  // float clipped = step(0.0, unclipped) * step(0.0, 1.0 - unclipped) * unclipped
-  //     + step(1.0, unclipped);
   float clipped = unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped);
   return vec4(clipped, 0, 0, 1);
 }
@@ -170,16 +171,21 @@ precision mediump float;
 
 // Noise-free fluxes
 uniform sampler2D u_flux_tex;
+
 // Noise array
 uniform sampler2D u_noise_tex;
+
 // Pixelation info
 uniform float u_n_pix_fine;
 uniform float u_n_pix;
+
 // Intermediate flux scale
 uniform float u_max_flux;
+
 // Noise scale
 uniform float u_noise_range;
 uniform float u_sigma_n;
+
 // Flux scale
 uniform float u_low_flux;
 uniform float u_high_flux;
@@ -208,11 +214,6 @@ float unrescale_noise(float n) {
 float rescale_clip_flux(float flux) {
   float unclipped = (flux - u_low_flux) / (u_high_flux - u_low_flux);
   return (unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped));
-  // return (
-  //   step(0.0, unclipped) *
-  //   step(0.0, 1.0 - unclipped) *
-  //   unclipped + step(1.0, unclipped)
-  // );
 }
 
 vec4 flux_to_noisy_rgba(float flux) {
