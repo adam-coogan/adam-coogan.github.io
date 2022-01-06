@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactTooltip from "react-tooltip";
 import styled from "styled-components";
 import * as twgl from "twgl.js"; // weird import structure
-import { fsLensSource, getFSPost, vsSource } from "../utils/shaders";
+import {
+  fsLensSource,
+  getFSPost,
+  vsSource,
+  fsSrcSource,
+} from "../utils/shaders";
 import { virialToScale } from "../utils/tnfwwebgl";
 import { randn } from "../utils/utils";
 
@@ -14,7 +19,7 @@ import { randn } from "../utils/utils";
  * -[X] Show subhalo dot
  * -[X] Add subhalo
  * -[X] Show lens ellipse
- * -[ ] Figure out how to show source
+ * -[X] Figure out how to show source
  * -[ ] Show difference between images with and without subhalo
  * -[ ] Generate subhalo shader with constants matching tsx
  * -[?] Separate initialization and drawing steps
@@ -234,10 +239,6 @@ const LensControls = ({ phiDeg, q, r_ein, setPhiDeg, setQ, setRein }) => (
   </div>
 );
 
-// const ActivatableButton = ({ children, ...props }) => (
-//   <button {...props}>{children}</button>
-// );
-
 const SHControls = ({ x, y, M_200c, setX, setY, setM200c }) => (
   <div>
     <h2>Subhalo parameters</h2>
@@ -256,12 +257,15 @@ const SHControls = ({ x, y, M_200c, setX, setY, setM200c }) => (
       max={2.5}
     />
     <ParamControls
-      label="Log10 mass (log10(M_200c)) [M_sun]"
+      label="Log10 mass [M_sun]"
       value={Math.log10(M_200c)}
       set={(newVal: number) => setM200c(10 ** newVal)}
       min={5}
       max={10.5}
-      description="Subhalo mass in sphere where average density is 200 times rho_cr"
+      description={
+        "The mass is that of a sphere centered on the subhalo in " +
+        "which the average density is 200 times rho_cr"
+      }
     />
   </div>
 );
@@ -418,6 +422,39 @@ const Page = () => {
   // Convert from virial to scale subhalo parameters
   const { rho_s, r_s } = virialToScale(M_200c);
 
+  const drawSource = (gl: WebGLRenderingContext) => {
+    const srcProgInfo = twgl.createProgramInfo(gl, [vsSource, fsSrcSource]);
+    gl.useProgram(srcProgInfo.program);
+    twgl.resizeCanvasToDisplaySize(gl.canvas);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    // Set up quad positions
+    const quadBufferInfo = twgl.createBufferInfoFromArrays(gl, {
+      a_position: {
+        size: 2,
+        data: [-1, -1, 1, -1, -1, 1, -1, 1, 1, 1, 1, -1],
+      },
+    });
+    twgl.setBuffersAndAttributes(gl, srcProgInfo, quadBufferInfo);
+
+    // Set source parameters
+    const uniforms = {
+      u_range: range,
+      u_x_s: x_s,
+      u_y_s: y_s,
+      u_phi_s: (phi_sDeg * Math.PI) / 180,
+      u_q_s: q_s,
+      u_index: index,
+      u_r_e: r_e,
+      u_I_e: I_e,
+      u_low_flux: lowFlux,
+      u_high_flux: highFlux,
+    };
+    twgl.setUniforms(srcProgInfo, uniforms);
+    // Draw
+    twgl.drawBufferInfo(gl, quadBufferInfo);
+  };
+
   const drawImage = (gl: WebGLRenderingContext) => {
     const lensProgInfo = twgl.createProgramInfo(gl, [vsSource, fsLensSource]);
     const postProgInfo = twgl.createProgramInfo(gl, [vsSource, fsPostSource]);
@@ -435,6 +472,7 @@ const Page = () => {
     gl.useProgram(lensProgInfo.program);
     // Set source parameters
     const lensUniforms = {
+      u_range: range,
       u_x_s: x_s,
       u_y_s: y_s,
       u_phi_s: (phi_sDeg * Math.PI) / 180,
@@ -452,7 +490,6 @@ const Page = () => {
       u_rho_s: rho_s,
       u_r_s: r_s,
       u_tau: tau,
-      u_range: range,
       u_max_flux: maxFlux,
     };
     twgl.setUniforms(lensProgInfo, lensUniforms);
@@ -505,12 +542,13 @@ const Page = () => {
       u_noise_tex: noiseTex,
     };
     twgl.setUniforms(postProgInfo, postUniforms);
+    // Draw
     twgl.drawBufferInfo(gl, quadBufferInfo);
   };
 
   const drawLens = (ctx: CanvasRenderingContext2D) => {
     const scale = ctx.canvas.width / nPix;
-    ctx.clearRect(0, 0, canvasDim, canvasDim);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     ctx.save();
 
@@ -555,6 +593,21 @@ const Page = () => {
           padding: "0.5rem",
         }}
       >
+        <div>
+          <h2 data-tip data-for="sourceHeaderTT">
+            Source
+          </h2>
+          <ReactTooltip id="sourceHeaderTT">
+            Source galaxy with no lensing
+          </ReactTooltip>
+          <Canvas
+            ctxName="webgl"
+            draw={drawSource}
+            width={canvasDim}
+            height={canvasDim}
+            style={{ width: canvasDim, height: canvasDim }}
+          />
+        </div>
         <SourceControls
           x={x_s}
           y={y_s}
@@ -582,40 +635,59 @@ const Page = () => {
           }
         />
       </div>
-      <div>
-        <div
-          style={{ position: "relative", width: canvasDim, height: canvasDim }}
-        >
-          <Canvas
-            ctxName="webgl"
-            draw={drawImage}
-            width={nPix}
-            height={nPix}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "left",
+          padding: "0.5rem",
+        }}
+      >
+        <div>
+          <h2 data-tip data-for="obsHeaderTT">
+            Observation
+          </h2>
+          <ReactTooltip id="obsHeaderTT">
+            Observation of lensed galaxy seen by telescope
+          </ReactTooltip>
+          <div
             style={{
-              position: "absolute",
-              left: "0px",
-              top: "0px",
+              position: "relative",
               width: canvasDim,
               height: canvasDim,
-              imageRendering: "pixelated",
-              zIndex: 1,
             }}
-          />
-          <Canvas
-            ctxName="2d"
-            draw={drawLens}
-            width={canvasDim}
-            height={canvasDim}
-            style={{
-              position: "absolute",
-              left: "0px",
-              top: "0px",
-              width: canvasDim,
-              height: canvasDim,
-              imageRendering: "pixelated",
-              zIndex: 2,
-            }}
-          />
+          >
+            <Canvas
+              ctxName="webgl"
+              draw={drawImage}
+              width={nPix}
+              height={nPix}
+              style={{
+                position: "absolute",
+                left: "0px",
+                top: "0px",
+                width: canvasDim,
+                height: canvasDim,
+                imageRendering: "pixelated",
+                zIndex: 1,
+              }}
+            />
+            <Canvas
+              ctxName="2d"
+              draw={drawLens}
+              width={canvasDim}
+              height={canvasDim}
+              style={{
+                position: "absolute",
+                left: "0px",
+                top: "0px",
+                width: canvasDim,
+                height: canvasDim,
+                imageRendering: "pixelated",
+                zIndex: 2,
+              }}
+            />
+          </div>
         </div>
         <LensControls
           phiDeg={phi_lDeg}
