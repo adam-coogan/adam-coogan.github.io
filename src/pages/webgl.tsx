@@ -1,25 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactTooltip from "react-tooltip";
+import styled from "styled-components";
+import * as twgl from "twgl.js"; // weird import structure
 import { fsLensSource, getFSPost, vsSource } from "../utils/shaders";
 import { virialToScale } from "../utils/tnfwwebgl";
 import { randn } from "../utils/utils";
-import * as twgl from "twgl.js"; // weird import structure
-import styled from "styled-components";
-
-twgl.setDefaults({ attribPrefix: "a_" });
 
 /*
  * The plan
  * --------
  * -[X] Switch to twgl
  * -[X] Style resolution buttons
- * -[ ] Show subhalo dot
- * -[ ] Figure out how to show source
+ * -[X] Show subhalo dot
  * -[X] Add subhalo
- * -[ ] Show lens ellipse
+ * -[X] Show lens ellipse
+ * -[ ] Figure out how to show source
  * -[ ] Show difference between images with and without subhalo
  * -[ ] Generate subhalo shader with constants matching tsx
- * -[ ] Separate initialization and drawing steps?
+ * -[?] Separate initialization and drawing steps
  */
 
 // Generate post-processesing shader
@@ -52,27 +50,28 @@ const Button = styled.button`
   }
 `;
 
-const useCanvas = (draw: (gl: WebGLRenderingContext) => void) => {
+const useCanvas = (ctxName: string, draw: (gl: RenderingContext) => void) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const gl = canvas.getContext("webgl");
-    if (!gl) console.log("no webgl!");
-    draw(gl);
+    const ctx = canvas.getContext(ctxName);
+    if (!ctx) console.log(`no ${ctxName}!`);
+    draw(ctx);
   }, [draw]);
 
   return canvasRef;
 };
 
 interface CanvasProps {
-  draw: (gl: WebGLRenderingContext) => void;
+  ctxName: string;
+  draw: (gl: RenderingContext) => void;
   [rest: string]: any;
 }
 
 const Canvas = (props: CanvasProps) => {
-  const { draw, ...rest } = props;
-  const canvasRef = useCanvas(draw);
+  const { ctxName, draw, ...rest } = props;
+  const canvasRef = useCanvas(ctxName, draw);
   return <canvas ref={canvasRef} {...rest} />;
 };
 
@@ -357,6 +356,7 @@ const TelescopeControls = ({ sigma_n, setSigmaN, setRes, resampleNoise }) => {
       </div>
     </div>
   );
+  // DEBUG
   // <button style={{ margin: "0.1rem" }} onClick={() => setRes(1.25)}>
   //   Chunky
   // </button>
@@ -418,18 +418,18 @@ const Page = () => {
   // Convert from virial to scale subhalo parameters
   const { rho_s, r_s } = virialToScale(M_200c);
 
-  const draw = (gl: WebGLRenderingContext) => {
+  const drawImage = (gl: WebGLRenderingContext) => {
     const lensProgInfo = twgl.createProgramInfo(gl, [vsSource, fsLensSource]);
     const postProgInfo = twgl.createProgramInfo(gl, [vsSource, fsPostSource]);
 
-    // Set up positions
-    const bufferInfo = twgl.createBufferInfoFromArrays(gl, {
-      position: {
-        numComponents: 2,
+    // Set up quad positions
+    const quadBufferInfo = twgl.createBufferInfoFromArrays(gl, {
+      a_position: {
+        size: 2,
         data: [-1, -1, 1, -1, -1, 1, -1, 1, 1, 1, 1, -1],
       },
     });
-    twgl.setBuffersAndAttributes(gl, lensProgInfo, bufferInfo);
+    twgl.setBuffersAndAttributes(gl, lensProgInfo, quadBufferInfo);
 
     // Do the lensing
     gl.useProgram(lensProgInfo.program);
@@ -456,19 +456,15 @@ const Page = () => {
       u_max_flux: maxFlux,
     };
     twgl.setUniforms(lensProgInfo, lensUniforms);
-    // Create framebuffer texture to render to
-    gl.viewport(0, 0, nPixFine, nPixFine);
-    // TODO: checkFramebufferStatus?
+    // Create framebuffer texture for intermediate rendering
     console.assert(
       gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE,
       "framebuffer is not ready to display"
     );
-    const fb = twgl.createFramebufferInfo(
+    const fbFine = twgl.createFramebufferInfo(
       gl,
       [
         {
-          format: gl.RGBA,
-          type: gl.UNSIGNED_BYTE,
           min: gl.NEAREST,
           mag: gl.NEAREST,
           wrap: gl.CLAMP_TO_EDGE,
@@ -477,13 +473,15 @@ const Page = () => {
       nPixFine,
       nPixFine
     );
-    // Draw to framebuffer texture
-    twgl.drawBufferInfo(gl, bufferInfo);
+    // Draw quad to framebuffer texture
+    twgl.bindFramebufferInfo(gl, fbFine);
+    twgl.drawBufferInfo(gl, quadBufferInfo);
 
     // Unbind framebuffer to switch to drawing to canvas
     twgl.bindFramebufferInfo(gl, null);
+    gl.viewport(0, 0, nPix, nPix);
 
-    // Apply PSF, pixelation and noise and draw to canvas
+    // Apply PSF, pixelation and noise
     gl.useProgram(postProgInfo.program);
     // Create noise texture
     const noiseTex = twgl.createTexture(gl, {
@@ -503,11 +501,48 @@ const Page = () => {
       u_max_flux: maxFlux,
       u_low_flux: lowFlux,
       u_high_flux: highFlux,
-      u_flux_tex: fb.attachments[0],
+      u_flux_tex: fbFine.attachments[0],
       u_noise_tex: noiseTex,
     };
     twgl.setUniforms(postProgInfo, postUniforms);
-    twgl.drawBufferInfo(gl, bufferInfo);
+    twgl.drawBufferInfo(gl, quadBufferInfo);
+  };
+
+  const drawLens = (ctx: CanvasRenderingContext2D) => {
+    const scale = ctx.canvas.width / nPix;
+    ctx.clearRect(0, 0, canvasDim, canvasDim);
+
+    ctx.save();
+
+    // Main lens ellipse
+    ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.strokeStyle = "#FF0000";
+    ctx.beginPath();
+    ctx.ellipse(
+      (x_l * scale) / res,
+      -(y_l * scale) / res, // since axis is flipped
+      (r_ein / q_l / res) * scale,
+      ((r_ein * q_l) / res) * scale,
+      -(phi_lDeg * Math.PI) / 180,
+      0,
+      2 * Math.PI
+    );
+    ctx.stroke();
+
+    // Subhalo dot
+    ctx.beginPath();
+    ctx.arc(
+      (x_sh * scale) / res,
+      -(y_sh * scale) / res, // since axis is flipped
+      3,
+      0,
+      2 * Math.PI,
+      false
+    );
+    ctx.fillStyle = "#FF0000";
+    ctx.fill();
+
+    ctx.restore();
   };
 
   return (
@@ -548,16 +583,40 @@ const Page = () => {
         />
       </div>
       <div>
-        <Canvas
-          draw={draw}
-          width={nPix}
-          height={nPix}
-          style={{
-            width: canvasDim,
-            height: canvasDim,
-            imageRendering: "pixelated",
-          }}
-        />
+        <div
+          style={{ position: "relative", width: canvasDim, height: canvasDim }}
+        >
+          <Canvas
+            ctxName="webgl"
+            draw={drawImage}
+            width={nPix}
+            height={nPix}
+            style={{
+              position: "absolute",
+              left: "0px",
+              top: "0px",
+              width: canvasDim,
+              height: canvasDim,
+              imageRendering: "pixelated",
+              zIndex: 1,
+            }}
+          />
+          <Canvas
+            ctxName="2d"
+            draw={drawLens}
+            width={canvasDim}
+            height={canvasDim}
+            style={{
+              position: "absolute",
+              left: "0px",
+              top: "0px",
+              width: canvasDim,
+              height: canvasDim,
+              imageRendering: "pixelated",
+              zIndex: 2,
+            }}
+          />
+        </div>
         <LensControls
           phiDeg={phi_lDeg}
           q={q_l}

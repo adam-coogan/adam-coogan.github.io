@@ -6,23 +6,27 @@
  * - https://computergraphics.stackexchange.com/questions/5724/glsl-can-someone-explain-why-gl-fragcoord-xy-screensize-is-performed-and-for
  */
 
+/*
+ * Gets lens plane coordinates
+ */
 export const vsSource = `
 attribute vec2 a_position;
 
 uniform float u_range;
-uniform vec2 u_translation;
 
 varying vec2 v_xy;
-// varying vec2 v_texcoord; // DEBUG
+varying vec2 v_texcoord; // DEBUG
 
 void main() {
-  gl_PointSize = 1.0;
   v_xy = a_position * u_range; // image coordinates
-  // v_texcoord = a_position * 0.5 + 0.5; // texture coordinates
+  v_texcoord = a_position * 0.5 + 0.5; // DEBUG
   gl_Position = vec4(a_position, 0, 1);
 }
 `;
 
+/*
+ * Ray-traces and evaluates source.
+ */
 export const fsLensSource = `
 precision mediump float;
 
@@ -58,16 +62,16 @@ varying vec2 v_xy;
 
 // Subhalo and lens constants
 // TODO: generate shader with correct constants
-float pi = 3.1415926535;
-float s_min = 1e-12;
-float G_over_c2 = 4.79e-20; // Mpc / MSol
-float zSrc = 2.5;
-float dASrc = 1704.8621; // Mpc
-float dALens = 1420.2484; // Mpc
-float dComovingSrc = 5967.0171; // Mpc
-float dComovingLens = 2272.3975; // Mpc
-float dALS = (dComovingSrc - dComovingLens) / (1.0 + zSrc);
-float Sigma_cr = 1.0 / (4.0 * pi * G_over_c2 * dALens * dALS / dASrc);
+#define PI radians(180.0)
+#define S_MIN 1e-12
+#define G_OVER_C2 4.79e-20 // Mpc / MSol
+#define Z_SRC 2.5
+#define D_A_SRC 1704.8621 // Mpc
+#define D_A_LENS 1420.2484 // Mpc
+#define D_COMOVING_SRC 5967.0171 // Mpc
+#define D_COMOVING_LENS 2272.3975 // Mpc
+float dALS = (D_COMOVING_SRC - D_COMOVING_LENS) / (1.0 + Z_SRC);
+float Sigma_cr = 1.0 / (4.0 * PI * G_OVER_C2 * D_A_LENS * dALS / D_A_SRC);
 
 float log10(float x) {
   return log(x) / 2.302585093;
@@ -116,7 +120,7 @@ vec2 alpha_sie(float x, float y) {
 
 vec2 alpha_tnfw(float x, float y) {
   // Convert scale radius to angular scale
-  float theta_s = (u_r_s / dALens) * ((180.0 / pi) * 60.0 * 60.0); // arcsec
+  float theta_s = (u_r_s / D_A_LENS) * ((180.0 / PI) * 60.0 * 60.0); // arcsec
 
   float dx = x - u_x_sh;
   float dy = y - u_y_sh;
@@ -124,16 +128,16 @@ vec2 alpha_tnfw(float x, float y) {
   float f =
     (s >= 1.0 ? acos(1.0 / s) : acosh(1.0 / s)) /
     sqrt(abs(s * s - 1.0));
-  float l = log((s + s_min) / (sqrt(s * s + u_tau * u_tau) + u_tau));
+  float l = log((s + S_MIN) / (sqrt(s * s + u_tau * u_tau) + u_tau));
   float m =
-    ((4.0 * pi * u_tau * u_tau) / ((u_tau * u_tau + 1.0) * (u_tau * u_tau + 1.0))) *
+    ((4.0 * PI * u_tau * u_tau) / ((u_tau * u_tau + 1.0) * (u_tau * u_tau + 1.0))) *
     ((u_tau * u_tau + 2.0 * s * s - 1.0) * f +
-      pi * u_tau +
+      PI * u_tau +
       (u_tau * u_tau - 1.0) * log(u_tau) +
-      sqrt(s * s + u_tau * u_tau) * (((u_tau * u_tau - 1.0) / u_tau) * l - pi));
+      sqrt(s * s + u_tau * u_tau) * (((u_tau * u_tau - 1.0) / u_tau) * l - PI));
   float k_s = (u_rho_s * u_r_s) / Sigma_cr;
 
-  float alpha_scale = (k_s * m) / pi / ((s + s_min) * (s + s_min));
+  float alpha_scale = (k_s * m) / PI / ((s + S_MIN) * (s + S_MIN));
   return vec2(alpha_scale * dx, alpha_scale * dy);
 }
 
@@ -165,6 +169,9 @@ void main() {
 }
 `;
 
+/*
+ * Postprocessing: pixelates and adds noise.
+ */
 export const getFSPost = (upsample: number) => {
   let source = `
 precision mediump float;
