@@ -20,8 +20,9 @@ import { randn } from "../utils/utils";
  * -[X] Add subhalo
  * -[X] Show lens ellipse
  * -[X] Figure out how to show source
- * -[ ] Show difference between images with and without subhalo
  * -[ ] Generate subhalo shader with constants matching tsx
+ * -[?] Visualize subhalo's impact. Maybe show difference between images with
+ *      and without subhalo?
  * -[?] Separate initialization and drawing steps
  */
 

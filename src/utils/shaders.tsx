@@ -6,27 +6,8 @@
  * - https://computergraphics.stackexchange.com/questions/5724/glsl-can-someone-explain-why-gl-fragcoord-xy-screensize-is-performed-and-for
  */
 
-/*
- * Gets lens plane coordinates
- */
-export const vsSource = `
-attribute vec2 a_position;
-
-uniform float u_range;
-
-varying vec2 v_xy;
-varying vec2 v_texcoord; // DEBUG
-
-void main() {
-  v_xy = a_position * u_range; // image coordinates
-  v_texcoord = a_position * 0.5 + 0.5; // DEBUG
-  gl_Position = vec4(a_position, 0, 1);
-}
-`;
-
-export const fsSrcSource = `
-precision mediump float;
-
+// Shared uniforms and functions
+const sersicFn = `
 // Source parameters
 uniform float u_x_s;
 uniform float u_y_s;
@@ -35,13 +16,6 @@ uniform float u_q_s;
 uniform float u_index;
 uniform float u_r_e;
 uniform float u_I_e;
-
-// Flux scale
-uniform float u_low_flux;
-uniform float u_high_flux;
-
-// Image positions
-varying vec2 v_xy;
 
 float sersic(float x, float y) {
   // Position relative to source
@@ -55,12 +29,20 @@ float sersic(float x, float y) {
   float exponent = -k * (pow(r, 1.0 / u_index) - 1.0);
   return u_I_e * exp(exponent);
 }
+`;
+
+const rescaleClipFluxFn = `
+// Flux scale
+uniform float u_low_flux;
+uniform float u_high_flux;
 
 float rescale_clip_flux(float flux) {
   float unclipped = (flux - u_low_flux) / (u_high_flux - u_low_flux);
   return (unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped));
 }
+`;
 
+const viridisFn = `
 // From https://www.shadertoy.com/view/WlfXRN
 vec3 viridis(float t) {
   const vec3 c0 = vec3(0.2777273272234177, 0.005407344544966578, 0.3340998053353061);
@@ -73,6 +55,37 @@ vec3 viridis(float t) {
 
   return c0 + t * (c1 + t * (c2 + t * (c3 + t * (c4 + t * (c5 + t * c6)))));
 }
+`;
+
+/*
+ * Gets lens plane coordinates
+ */
+export const vsSource = `
+attribute vec2 a_position;
+
+uniform float u_range;
+
+varying vec2 v_xy;
+// varying vec2 v_texcoord; // DEBUG
+
+void main() {
+  v_xy = a_position * u_range; // image coordinates
+  // v_texcoord = a_position * 0.5 + 0.5; // DEBUG
+  gl_Position = vec4(a_position, 0, 1);
+}
+`;
+
+export const fsSrcSource = `
+precision mediump float;
+
+// Image positions
+varying vec2 v_xy;
+
+${sersicFn}
+
+${rescaleClipFluxFn}
+
+${viridisFn}
 
 void main() {
   float flux = sersic(v_xy[0], v_xy[1]);
@@ -85,15 +98,6 @@ void main() {
  */
 export const fsLensSource = `
 precision mediump float;
-
-// Source parameters
-uniform float u_x_s;
-uniform float u_y_s;
-uniform float u_phi_s;
-uniform float u_q_s;
-uniform float u_index;
-uniform float u_r_e;
-uniform float u_I_e;
 
 // Main lens parameters
 uniform float u_x_l;
@@ -137,18 +141,7 @@ float acosh(float x) {
   return log(x + sqrt(x * x - 1.0));
 }
 
-float sersic(float x, float y) {
-  // Position relative to source
-  float dx = x - u_x_s;
-  float dy = y - u_y_s;
-
-  float k = 2.0 * u_index - 1.0 / 3.0 + 4.0 / 405.0 / u_index + 46.0 / 25515.0 / (u_index * u_index);
-  float x_maj = dx * cos(u_phi_s) + dy * sin(u_phi_s);
-  float x_min = -dx * sin(u_phi_s) + dy * cos(u_phi_s);
-  float r = sqrt(x_maj * x_maj * u_q_s + x_min * x_min / u_q_s) / u_r_e;
-  float exponent = -k * (pow(r, 1.0 / u_index) - 1.0);
-  return u_I_e * exp(exponent);
-}
+${sersicFn}
 
 vec2 alpha_sie(float x, float y) {
   // Transform to elliptical coordinates
@@ -249,22 +242,7 @@ uniform float u_max_flux;
 uniform float u_noise_range;
 uniform float u_sigma_n;
 
-// Flux scale
-uniform float u_low_flux;
-uniform float u_high_flux;
-
-// From https://www.shadertoy.com/view/WlfXRN
-vec3 viridis(float t) {
-  const vec3 c0 = vec3(0.2777273272234177, 0.005407344544966578, 0.3340998053353061);
-  const vec3 c1 = vec3(0.1050930431085774, 1.404613529898575, 1.384590162594685);
-  const vec3 c2 = vec3(-0.3308618287255563, 0.214847559468213, 0.09509516302823659);
-  const vec3 c3 = vec3(-4.634230498983486, -5.799100973351585, -19.33244095627987);
-  const vec3 c4 = vec3(6.228269936347081, 14.17993336680509, 56.69055260068105);
-  const vec3 c5 = vec3(4.776384997670288, -13.74514537774601, -65.35303263337234);
-  const vec3 c6 = vec3(-5.435455855934631, 4.645852612178535, 26.3124352495832);
-
-  return c0 + t * (c1 + t * (c2 + t * (c3 + t * (c4 + t * (c5 + t * c6)))));
-}
+${viridisFn}
 
 float unrescale_flux(float r) {
   return r * u_max_flux;
@@ -274,10 +252,7 @@ float unrescale_noise(float n) {
   return 2.0 * (n - 0.5) * u_noise_range * u_sigma_n * 0.5;
 }
 
-float rescale_clip_flux(float flux) {
-  float unclipped = (flux - u_low_flux) / (u_high_flux - u_low_flux);
-  return (unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped));
-}
+${rescaleClipFluxFn}
 
 vec4 flux_to_noisy_rgba(float flux) {
   float scaled_noise = texture2D(u_noise_tex, gl_FragCoord.xy / u_n_pix).x;
