@@ -13,6 +13,7 @@ const HeaderContainer = styled.header`
   background-color: #f45b2b;
   position: sticky;
   top: 0;
+  z-index: 100;
 `;
 
 const AnchorLink = styled(BaseAnchorLink)`

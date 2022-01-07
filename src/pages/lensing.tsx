@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import Layout from "../components/layout";
 import ReactTooltip from "react-tooltip";
 import styled from "styled-components";
 import * as twgl from "twgl.js"; // weird import structure
@@ -16,10 +17,12 @@ import { randn } from "../utils/utils";
  * --------
  * -[X] Switch to twgl
  * -[X] Style resolution buttons
- * -[X] Show subhalo dot
  * -[X] Add subhalo
+ * -[X] Show subhalo dot
  * -[X] Show lens ellipse
  * -[X] Figure out how to show source
+ * -[ ] Add lens light
+ * -[ ] Add subhalo population
  * -[ ] Generate subhalo shader with constants matching tsx
  * -[?] Visualize subhalo's impact. Maybe show difference between images with
  *      and without subhalo?
@@ -115,13 +118,12 @@ const ParamControls = ({
   return (
     <div
       style={{
-        width: "35em",
         display: "flex",
         alignItems: "center",
       }}
     >
       {labelBlock}
-      <input
+      {/*      <input
         style={{ flex: 1, margin: "0.2rem", minWidth: 0 }}
         type="text"
         min={min}
@@ -131,7 +133,7 @@ const ParamControls = ({
         onChange={(e) => {
           set(parseFloat(e.target.value));
         }}
-      />
+      />*/}
       <input
         style={{ flex: 3, margin: "0.2rem" }}
         type="range"
@@ -162,21 +164,21 @@ const SourceControls = ({
   <div>
     <h2>Source parameters</h2>
     <ParamControls
-      label="Position (x) ['']"
+      label="Horizontal position"
       value={x}
       set={setX}
       min={-2.5}
       max={2.5}
     />
     <ParamControls
-      label="Position (y) ['']"
+      label="Vertical position"
       value={y}
       set={setY}
       min={-2.5}
       max={2.5}
     />
     <ParamControls
-      label="Orientation (ϕ) [deg]"
+      label="Orientation"
       value={phiDeg}
       set={setPhiDeg}
       min={-180}
@@ -184,7 +186,7 @@ const SourceControls = ({
       description="Orientation of source relative to x-axis"
     />
     <ParamControls
-      label="Ellipticity (q)"
+      label="Ellipticity"
       value={q}
       set={setQ}
       min={0.15}
@@ -192,7 +194,7 @@ const SourceControls = ({
       description="Controls whether source is circular (q=1) or elliptical (q=0)"
     />
     <ParamControls
-      label="Index"
+      label="Sharpness"
       value={index}
       set={setIndex}
       min={0.5}
@@ -200,7 +202,7 @@ const SourceControls = ({
       description="Higher values cause source brightness to decrease sharply with radius"
     />
     <ParamControls
-      label="Size (r_e) ['']"
+      label="Size"
       value={r_e}
       set={setRe}
       min={0.0001}
@@ -214,7 +216,7 @@ const LensControls = ({ phiDeg, q, r_ein, setPhiDeg, setQ, setRein }) => (
   <div>
     <h2>Lens parameters</h2>
     <ParamControls
-      label="Orientation (ϕ) [deg]"
+      label="Orientation"
       value={phiDeg}
       set={setPhiDeg}
       min={-180}
@@ -222,7 +224,7 @@ const LensControls = ({ phiDeg, q, r_ein, setPhiDeg, setQ, setRein }) => (
       description="Orientation of lens relative to x-axis"
     />
     <ParamControls
-      label="Ellipticity (q)"
+      label="Ellipticity"
       value={q}
       set={setQ}
       min={0.15}
@@ -230,7 +232,7 @@ const LensControls = ({ phiDeg, q, r_ein, setPhiDeg, setQ, setRein }) => (
       description="Controls whether lens is circular (q=1) or elliptical (q=0)"
     />
     <ParamControls
-      label="Einstein radius (r_ein)"
+      label="Einstein radius"
       value={r_ein}
       set={setRein}
       min={0.0001}
@@ -244,21 +246,21 @@ const SHControls = ({ x, y, M_200c, setX, setY, setM200c }) => (
   <div>
     <h2>Subhalo parameters</h2>
     <ParamControls
-      label="Position (x) ['']"
+      label="Horizontal position"
       value={x}
       set={setX}
       min={-2.5}
       max={2.5}
     />
     <ParamControls
-      label="Position (y) ['']"
+      label="Vertical position"
       value={y}
       set={setY}
       min={-2.5}
       max={2.5}
     />
     <ParamControls
-      label="Log10 mass [M_sun]"
+      label="Mass"
       value={Math.log10(M_200c)}
       set={(newVal: number) => setM200c(10 ** newVal)}
       min={5}
@@ -585,133 +587,149 @@ const Page = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "row" }}>
+    <Layout>
       <div
         style={{
+          justifyContent: "center",
+          backgroundColor: "#FFFFFF",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "left",
-          padding: "0.5rem",
+          flexDirection: "row",
         }}
       >
-        <div>
-          <h2 data-tip data-for="sourceHeaderTT">
-            Source
-          </h2>
-          <ReactTooltip id="sourceHeaderTT">
-            Source galaxy with no lensing
-          </ReactTooltip>
-          <Canvas
-            ctxName="webgl"
-            draw={drawSource}
-            width={canvasDim}
-            height={canvasDim}
-            style={{ width: canvasDim, height: canvasDim }}
-          />
-        </div>
-        <SourceControls
-          x={x_s}
-          y={y_s}
-          phiDeg={phi_sDeg}
-          q={q_s}
-          index={index}
-          r_e={r_e}
-          setX={setXs}
-          setY={setYs}
-          setPhiDeg={setPhisDeg}
-          setQ={setQs}
-          setIndex={setIndex}
-          setRe={setRe}
-        />
-        <TelescopeControls
-          sigma_n={sigma_n}
-          setSigmaN={setSigmaN}
-          setRes={(res: number) => {
-            setRes(res);
-            const newNPix = getNPix(canvasDim, targetRange, res);
-            setNoiseArray(getNoiseTexArray(newNPix ** 2, noiseRange));
+        <div
+          style={{
+            width: canvasDim,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "left",
+            padding: "0.5rem",
+            paddingRight: "5rem",
           }}
-          resampleNoise={() =>
-            setNoiseArray(getNoiseTexArray(nPix ** 2, noiseRange))
-          }
-        />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "left",
-          padding: "0.5rem",
-        }}
-      >
-        <div>
-          <h2 data-tip data-for="obsHeaderTT">
-            Observation
-          </h2>
-          <ReactTooltip id="obsHeaderTT">
-            Observation of lensed galaxy seen by telescope
-          </ReactTooltip>
-          <div
-            style={{
-              position: "relative",
-              width: canvasDim,
-              height: canvasDim,
-            }}
-          >
+        >
+          <div>
+            <h2 data-tip data-for="sourceHeaderTT">
+              Source
+            </h2>
+            <ReactTooltip id="sourceHeaderTT">
+              Source galaxy with no lensing
+            </ReactTooltip>
             <Canvas
               ctxName="webgl"
-              draw={drawImage}
-              width={nPix}
-              height={nPix}
-              style={{
-                position: "absolute",
-                left: "0px",
-                top: "0px",
-                width: canvasDim,
-                height: canvasDim,
-                imageRendering: "pixelated",
-                zIndex: 1,
-              }}
-            />
-            <Canvas
-              ctxName="2d"
-              draw={drawLens}
+              draw={drawSource}
               width={canvasDim}
               height={canvasDim}
-              style={{
-                position: "absolute",
-                left: "0px",
-                top: "0px",
-                width: canvasDim,
-                height: canvasDim,
-                imageRendering: "pixelated",
-                zIndex: 2,
-              }}
+              style={{ width: canvasDim, height: canvasDim }}
             />
           </div>
+          <SourceControls
+            x={x_s}
+            y={y_s}
+            phiDeg={phi_sDeg}
+            q={q_s}
+            index={index}
+            r_e={r_e}
+            setX={setXs}
+            setY={setYs}
+            setPhiDeg={setPhisDeg}
+            setQ={setQs}
+            setIndex={setIndex}
+            setRe={setRe}
+          />
+          <TelescopeControls
+            sigma_n={sigma_n}
+            setSigmaN={setSigmaN}
+            setRes={(res: number) => {
+              setRes(res);
+              const newNPix = getNPix(canvasDim, targetRange, res);
+              setNoiseArray(getNoiseTexArray(newNPix ** 2, noiseRange));
+            }}
+            resampleNoise={() =>
+              setNoiseArray(getNoiseTexArray(nPix ** 2, noiseRange))
+            }
+          />
         </div>
-        <LensControls
-          phiDeg={phi_lDeg}
-          q={q_l}
-          r_ein={r_ein}
-          setPhiDeg={setPhilDeg}
-          setQ={setQl}
-          setRein={setRein}
-        />
-        <SHControls
-          x={x_sh}
-          y={y_sh}
-          M_200c={M_200c}
-          // c_200c={c_200c}
-          // tau={tau}
-          setX={setXsh}
-          setY={setYsh}
-          setM200c={setM200c}
-          // setc200c={setc200c}
-          // setTau={setTau}
-        />
+        <div
+          style={{
+            width: canvasDim,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "left",
+            padding: "0.5rem",
+            paddingLeft: "5rem",
+          }}
+        >
+          <div>
+            <h2 data-tip data-for="obsHeaderTT">
+              Observation
+            </h2>
+            <ReactTooltip id="obsHeaderTT">
+              Observation of lensed galaxy seen by telescope
+            </ReactTooltip>
+            <div
+              style={{
+                position: "relative",
+                width: canvasDim,
+                height: canvasDim,
+              }}
+            >
+              <Canvas
+                ctxName="webgl"
+                draw={drawImage}
+                width={nPix}
+                height={nPix}
+                style={{
+                  position: "absolute",
+                  left: "0px",
+                  top: "0px",
+                  width: canvasDim,
+                  height: canvasDim,
+                  imageRendering: "pixelated",
+                  zIndex: 1,
+                }}
+              />
+              <Canvas
+                ctxName="2d"
+                draw={drawLens}
+                width={canvasDim}
+                height={canvasDim}
+                style={{
+                  position: "absolute",
+                  left: "0px",
+                  top: "0px",
+                  width: canvasDim,
+                  height: canvasDim,
+                  imageRendering: "-moz-crisp-edges", // @ts-expect-error
+                  imageRendering: "-webkit-crisp-edges", // @ts-expect-error
+                  imageRendering: "pixelated", // @ts-expect-error
+                  imageRendering: "crisp-edges",
+                  zIndex: 2,
+                }}
+              />
+            </div>
+          </div>
+          <LensControls
+            phiDeg={phi_lDeg}
+            q={q_l}
+            r_ein={r_ein}
+            setPhiDeg={setPhilDeg}
+            setQ={setQl}
+            setRein={setRein}
+          />
+          <SHControls
+            x={x_sh}
+            y={y_sh}
+            M_200c={M_200c}
+            // c_200c={c_200c}
+            // tau={tau}
+            setX={setXsh}
+            setY={setYsh}
+            setM200c={setM200c}
+            // setc200c={setc200c}
+            // setTau={setTau}
+          />
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
