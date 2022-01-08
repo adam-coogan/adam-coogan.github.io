@@ -21,7 +21,12 @@ import { randn } from "../utils/utils";
  * -[X] Show subhalo dot
  * -[X] Show lens ellipse
  * -[X] Figure out how to show source
+ * -[X] Add external shear
  * -[ ] Add lens light
+ *      * Can add another canvas with a similar shader to the source one
+ *      * Need to use a different color scheme, blending and transparency
+ *      * Unclear how to map r_ein to r_e and what flux scale to use. Could use
+ *        mass-to-light ratio?
  * -[ ] Add subhalo population
  * -[ ] Generate subhalo shader with constants matching tsx
  * -[?] Visualize subhalo's impact. Maybe show difference between images with
@@ -135,7 +140,7 @@ const ParamControls = ({
         }}
       />*/}
       <input
-        style={{ flex: 3, margin: "0.2rem" }}
+        style={{ flex: 2.5, margin: "0.2rem" }}
         type="range"
         min={min}
         max={max}
@@ -238,6 +243,28 @@ const LensControls = ({ phiDeg, q, r_ein, setPhiDeg, setQ, setRein }) => (
       min={0.0001}
       max={2.5}
       description="Sets the size of the lens"
+    />
+  </div>
+);
+
+const ShearControls = ({ gamma_1, gamma_2, setGamma_1, setGamma_2 }) => (
+  <div>
+    <h2>External shear parameters</h2>
+    <ParamControls
+      label="Horizontal component"
+      value={gamma_1}
+      set={setGamma_1}
+      min={-0.05}
+      max={0.05}
+      description="Horizontal component of distortions from large-scale structure"
+    />
+    <ParamControls
+      label="Vertical component"
+      value={gamma_2}
+      set={setGamma_2}
+      min={-0.05}
+      max={0.05}
+      description="Vertical component of distortions from large-scale structure"
     />
   </div>
 );
@@ -397,6 +424,9 @@ const Page = () => {
   const [phi_lDeg, setPhilDeg] = useState(57.296);
   const [q_l, setQl] = useState(0.75);
   const [r_ein, setRein] = useState(1.5);
+  // Shear parameters
+  const [gamma_1, setGamma_1] = useState(0.007);
+  const [gamma_2, setGamma_2] = useState(0.01);
   // Subhalo parameters
   const [x_sh, setXsh] = useState(-1.1);
   const [y_sh, setYsh] = useState(-1.1);
@@ -475,7 +505,7 @@ const Page = () => {
     gl.useProgram(lensProgInfo.program);
     // Set source parameters
     const lensUniforms = {
-      u_range: range,
+      // Source
       u_x_s: x_s,
       u_y_s: y_s,
       u_phi_s: (phi_sDeg * Math.PI) / 180,
@@ -483,16 +513,23 @@ const Page = () => {
       u_index: index,
       u_r_e: r_e,
       u_I_e: I_e,
+      // Main lens
       u_x_l: x_l,
       u_y_l: y_l,
       u_phi_l: (phi_lDeg * Math.PI) / 180,
       u_q_l: q_l,
       u_r_ein: r_ein,
+      // Shear
+      u_gamma_1: gamma_1,
+      u_gamma_2: gamma_2,
+      // Subhalo
       u_x_sh: x_sh,
       u_y_sh: y_sh,
       u_rho_s: rho_s,
       u_r_s: r_s,
       u_tau: tau,
+      // Misc
+      u_range: range,
       u_max_flux: maxFlux,
     };
     twgl.setUniforms(lensProgInfo, lensUniforms);
@@ -707,14 +744,6 @@ const Page = () => {
               />
             </div>
           </div>
-          <LensControls
-            phiDeg={phi_lDeg}
-            q={q_l}
-            r_ein={r_ein}
-            setPhiDeg={setPhilDeg}
-            setQ={setQl}
-            setRein={setRein}
-          />
           <SHControls
             x={x_sh}
             y={y_sh}
@@ -726,6 +755,20 @@ const Page = () => {
             setM200c={setM200c}
             // setc200c={setc200c}
             // setTau={setTau}
+          />
+          <LensControls
+            phiDeg={phi_lDeg}
+            q={q_l}
+            r_ein={r_ein}
+            setPhiDeg={setPhilDeg}
+            setQ={setQl}
+            setRein={setRein}
+          />
+          <ShearControls
+            gamma_1={gamma_1}
+            gamma_2={gamma_2}
+            setGamma_1={setGamma_1}
+            setGamma_2={setGamma_2}
           />
         </div>
       </div>

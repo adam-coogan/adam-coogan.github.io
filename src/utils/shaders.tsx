@@ -106,6 +106,10 @@ uniform float u_phi_l;
 uniform float u_q_l;
 uniform float u_r_ein;
 
+// External shear parameters
+uniform float u_gamma_1;
+uniform float u_gamma_2;
+
 // Subhalo parameters
 uniform float u_x_sh;
 uniform float u_y_sh;
@@ -190,6 +194,12 @@ vec2 alpha_tnfw(float x, float y) {
   return vec2(alpha_scale * dx, alpha_scale * dy);
 }
 
+vec2 alpha_shear(float x, float y) {
+  float alpha_x = u_gamma_1 * x + u_gamma_2 * y;
+  float alpha_y = u_gamma_1 * x - u_gamma_2 * y;
+  return vec2(alpha_x, alpha_y);
+}
+
 // Rescales the flux to (0, 1) and sets to R component of color
 vec4 flux_to_r(float flux) {
   float unclipped = flux / u_max_flux;
@@ -198,7 +208,11 @@ vec4 flux_to_r(float flux) {
 }
 
 void main() {
-  vec2 alpha = alpha_sie(v_xy[0], v_xy[1]) + alpha_tnfw(v_xy[0], v_xy[1]);
+  vec2 alpha = (
+    alpha_sie(v_xy[0], v_xy[1])
+    + alpha_shear(v_xy[0], v_xy[1])
+    + alpha_tnfw(v_xy[0], v_xy[1])
+  );
   vec2 xy_lensed = v_xy - alpha;
   float flux = sersic(xy_lensed[0], xy_lensed[1]);
   gl_FragColor = flux_to_r(flux);
