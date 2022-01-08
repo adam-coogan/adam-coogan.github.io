@@ -8,36 +8,33 @@
 
 // Shared uniforms and functions
 const sersicFn = `
-// Source parameters
-uniform float u_x_s;
-uniform float u_y_s;
-uniform float u_phi_s;
-uniform float u_q_s;
-uniform float u_index;
-uniform float u_r_e;
-uniform float u_I_e;
-
-float sersic(float x, float y) {
+float sersic(
+  float x,
+  float y,
+  float x_s,
+  float y_s,
+  float phi_s,
+  float q_s,
+  float index,
+  float r_e,
+  float I_e
+) {
   // Position relative to source
-  float dx = x - u_x_s;
-  float dy = y - u_y_s;
+  float dx = x - x_s;
+  float dy = y - y_s;
 
-  float k = 2.0 * u_index - 1.0 / 3.0 + 4.0 / 405.0 / u_index + 46.0 / 25515.0 / (u_index * u_index);
-  float x_maj = dx * cos(u_phi_s) + dy * sin(u_phi_s);
-  float x_min = -dx * sin(u_phi_s) + dy * cos(u_phi_s);
-  float r = sqrt(x_maj * x_maj * u_q_s + x_min * x_min / u_q_s) / u_r_e;
-  float exponent = -k * (pow(r, 1.0 / u_index) - 1.0);
-  return u_I_e * exp(exponent);
+  float k = 2.0 * index - 1.0 / 3.0 + 4.0 / 405.0 / index + 46.0 / 25515.0 / (index * index);
+  float x_maj = dx * cos(phi_s) + dy * sin(phi_s);
+  float x_min = -dx * sin(phi_s) + dy * cos(phi_s);
+  float r = sqrt(x_maj * x_maj * q_s + x_min * x_min / q_s) / r_e;
+  float exponent = -k * (pow(r, 1.0 / index) - 1.0);
+  return I_e * exp(exponent);
 }
 `;
 
 const rescaleClipFluxFn = `
-// Flux scale
-uniform float u_low_flux;
-uniform float u_high_flux;
-
-float rescale_clip_flux(float flux) {
-  float unclipped = (flux - u_low_flux) / (u_high_flux - u_low_flux);
+float rescale_clip_flux(float flux, float low_flux, float high_flux) {
+  float unclipped = (flux - low_flux) / (high_flux - low_flux);
   return (unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped));
 }
 `;
@@ -78,6 +75,19 @@ void main() {
 export const fsSrcSource = `
 precision mediump float;
 
+// Source parameters
+uniform float u_x_s;
+uniform float u_y_s;
+uniform float u_phi_s;
+uniform float u_q_s;
+uniform float u_index;
+uniform float u_r_e;
+uniform float u_I_e;
+
+// Flux scale
+uniform float u_low_flux;
+uniform float u_high_flux;
+
 // Image positions
 varying vec2 v_xy;
 
@@ -88,8 +98,19 @@ ${rescaleClipFluxFn}
 ${viridisFn}
 
 void main() {
-  float flux = sersic(v_xy[0], v_xy[1]);
-  gl_FragColor = vec4(viridis(rescale_clip_flux(flux)), 1);
+  float flux = sersic(
+    v_xy[0],
+    v_xy[1],
+    u_x_s,
+    u_y_s,
+    u_phi_s,
+    u_q_s,
+    u_index,
+    u_r_e,
+    u_I_e
+  );
+  float clipped_flux = rescale_clip_flux(flux, u_low_flux, u_high_flux);
+  gl_FragColor = vec4(viridis(clipped_flux), 1);
 }
 `;
 
@@ -98,6 +119,15 @@ void main() {
  */
 export const fsLensSource = `
 precision mediump float;
+
+// Source parameters
+uniform float u_x_s;
+uniform float u_y_s;
+uniform float u_phi_s;
+uniform float u_q_s;
+uniform float u_index;
+uniform float u_r_e;
+uniform float u_I_e;
 
 // Main lens parameters
 uniform float u_x_l;
@@ -200,22 +230,37 @@ vec2 alpha_shear(float x, float y) {
   return vec2(alpha_x, alpha_y);
 }
 
+${rescaleClipFluxFn}
+
 // Rescales the flux to (0, 1) and sets to R component of color
-vec4 flux_to_r(float flux) {
-  float unclipped = flux / u_max_flux;
-  float clipped = unclipped < 0.0 ? 0.0 : (unclipped > 1.0 ? 1.0 : unclipped);
-  return vec4(clipped, 0, 0, 1);
+vec4 fluxes_to_rg(float flux, float lens_flux) {
+  float clipped_flux = rescale_clip_flux(flux, 0.0, u_max_flux);
+  float clipped_lens_flux = rescale_clip_flux(lens_flux, 0.0, u_max_flux);
+  return vec4(clipped_flux, clipped_lens_flux, 0, 1);
 }
 
 void main() {
+  // Lens the source galaxy
   vec2 alpha = (
     alpha_sie(v_xy[0], v_xy[1])
     + alpha_shear(v_xy[0], v_xy[1])
     + alpha_tnfw(v_xy[0], v_xy[1])
   );
   vec2 xy_lensed = v_xy - alpha;
-  float flux = sersic(xy_lensed[0], xy_lensed[1]);
-  gl_FragColor = flux_to_r(flux);
+  float flux = sersic(
+    xy_lensed[0],
+    xy_lensed[1],
+    u_x_s,
+    u_y_s,
+    u_phi_s,
+    u_q_s,
+    u_index,
+    u_r_e,
+    u_I_e
+  );
+  // Add lens light
+  float lens_flux = 0.0;
+  gl_FragColor = fluxes_to_rg(flux, lens_flux);
 
   // // DEBUG: single red pixel
   // float upsample = 2.0;
@@ -252,6 +297,10 @@ uniform float u_n_pix;
 // Intermediate flux scale
 uniform float u_max_flux;
 
+// Flux scale
+uniform float u_low_flux;
+uniform float u_high_flux;
+
 // Noise scale
 uniform float u_noise_range;
 uniform float u_sigma_n;
@@ -271,7 +320,8 @@ ${rescaleClipFluxFn}
 vec4 flux_to_noisy_rgba(float flux) {
   float scaled_noise = texture2D(u_noise_tex, gl_FragCoord.xy / u_n_pix).x;
   float noisy_flux = unrescale_flux(flux) + unrescale_noise(scaled_noise);
-  return vec4(viridis(rescale_clip_flux(noisy_flux)), 1);
+  float clipped_flux = rescale_clip_flux(noisy_flux, u_low_flux, u_high_flux);
+  return vec4(viridis(clipped_flux), 1);
 }
 
 void main() {
