@@ -135,17 +135,19 @@ uniform float u_y_l;
 uniform float u_phi_l;
 uniform float u_q_l;
 uniform float u_r_ein;
+uniform float u_lens_light_scale;
 
 // External shear parameters
 uniform float u_gamma_1;
 uniform float u_gamma_2;
 
 // Subhalo parameters
-uniform float u_x_sh;
-uniform float u_y_sh;
-uniform float u_rho_s;
-uniform float u_r_s;
-uniform float u_tau;
+#define N_SH 10
+uniform float u_x_sh[N_SH];
+uniform float u_y_sh[N_SH];
+uniform float u_rho_s[N_SH];
+uniform float u_r_s[N_SH];
+uniform float u_tau[N_SH];
 
 // Intermediate flux scale
 uniform float u_max_flux;
@@ -201,24 +203,26 @@ vec2 alpha_sie(float x, float y) {
   return vec2(alpha_x, alpha_y);
 }
 
-vec2 alpha_tnfw(float x, float y) {
+vec2 alpha_tnfw(
+  float x, float y, float x_sh, float y_sh, float rho_s, float r_s, float tau
+) {
   // Convert scale radius to angular scale
-  float theta_s = (u_r_s / D_A_LENS) * ((180.0 / PI) * 60.0 * 60.0); // arcsec
+  float theta_s = (r_s / D_A_LENS) * ((180.0 / PI) * 60.0 * 60.0); // arcsec
 
-  float dx = x - u_x_sh;
-  float dy = y - u_y_sh;
+  float dx = x - x_sh;
+  float dy = y - y_sh;
   float s = sqrt(dx * dx + dy * dy) / theta_s;
   float f =
     (s >= 1.0 ? acos(1.0 / s) : acosh(1.0 / s)) /
     sqrt(abs(s * s - 1.0));
-  float l = log((s + S_MIN) / (sqrt(s * s + u_tau * u_tau) + u_tau));
+  float l = log((s + S_MIN) / (sqrt(s * s + tau * tau) + tau));
   float m =
-    ((4.0 * PI * u_tau * u_tau) / ((u_tau * u_tau + 1.0) * (u_tau * u_tau + 1.0))) *
-    ((u_tau * u_tau + 2.0 * s * s - 1.0) * f +
-      PI * u_tau +
-      (u_tau * u_tau - 1.0) * log(u_tau) +
-      sqrt(s * s + u_tau * u_tau) * (((u_tau * u_tau - 1.0) / u_tau) * l - PI));
-  float k_s = (u_rho_s * u_r_s) / Sigma_cr;
+    ((4.0 * PI * tau * tau) / ((tau * tau + 1.0) * (tau * tau + 1.0))) *
+    ((tau * tau + 2.0 * s * s - 1.0) * f +
+      PI * tau +
+      (tau * tau - 1.0) * log(tau) +
+      sqrt(s * s + tau * tau) * (((tau * tau - 1.0) / tau) * l - PI));
+  float k_s = (rho_s * r_s) / Sigma_cr;
 
   float alpha_scale = (k_s * m) / PI / ((s + S_MIN) * (s + S_MIN));
   return vec2(alpha_scale * dx, alpha_scale * dy);
@@ -239,14 +243,40 @@ vec4 fluxes_to_rg(float flux, float lens_flux) {
   return vec4(clipped_flux, clipped_lens_flux, 0, 1);
 }
 
+float gaussian_source(
+  float x,
+  float y,
+  float x_s,
+  float y_s,
+  float phi,
+  float q,
+  float sigma,
+  float norm
+) {
+  float dx = x - x_s;
+  float dy = y - y_s;
+  float rx = (dx * cos(phi) + dy * sin(phi)) * sqrt(q);
+  float ry = (-dx * sin(phi) + dy * cos(phi)) / sqrt(q);
+  float r2 = rx * rx + ry * ry;
+  float ang = atan(ry, rx);
+  return norm * exp(-r2 / (2.0 * sigma * sigma));
+}
+
 void main() {
-  // Lens the source galaxy
+  // Main lens deflection field
   vec2 alpha = (
     alpha_sie(v_xy[0], v_xy[1])
     + alpha_shear(v_xy[0], v_xy[1])
-    + alpha_tnfw(v_xy[0], v_xy[1])
   );
+  // Loop over subhalos
+  for (int i = 0; i < N_SH; i++) {
+    alpha += alpha_tnfw(
+      v_xy[0], v_xy[1], u_x_sh[i], u_y_sh[i], u_rho_s[i], u_r_s[i], u_tau[i]
+    );
+  }
+  // Apply lensing equation
   vec2 xy_lensed = v_xy - alpha;
+  // Compute fluxes
   float flux = sersic(
     xy_lensed[0],
     xy_lensed[1],
@@ -258,8 +288,18 @@ void main() {
     u_r_e,
     u_I_e
   );
-  // Add lens light
-  float lens_flux = 0.0;
+  // Get lens light
+  float lens_flux = u_lens_light_scale > 0.0 ? gaussian_source(
+    v_xy[0],
+    v_xy[1],
+    0.0,
+    0.0,
+    u_phi_l,
+    u_q_l,
+    u_r_ein / 1.5,
+    u_lens_light_scale
+  ) : 0.0;
+  // Put flux in r channel and lens_flux in g channel
   gl_FragColor = fluxes_to_rg(flux, lens_flux);
 
   // // DEBUG: single red pixel
@@ -317,9 +357,13 @@ float unrescale_noise(float n) {
 
 ${rescaleClipFluxFn}
 
-vec4 flux_to_noisy_rgba(float flux) {
+vec4 flux_to_noisy_rgba(float flux, float lens_flux) {
   float scaled_noise = texture2D(u_noise_tex, gl_FragCoord.xy / u_n_pix).x;
-  float noisy_flux = unrescale_flux(flux) + unrescale_noise(scaled_noise);
+  float noisy_flux = (
+    unrescale_flux(flux)
+    + unrescale_flux(lens_flux)
+    + unrescale_noise(scaled_noise)
+  );
   float clipped_flux = rescale_clip_flux(noisy_flux, u_low_flux, u_high_flux);
   return vec4(viridis(clipped_flux), 1);
 }
@@ -341,9 +385,27 @@ void main() {
         "\n";
     }
   }
-
   source += `  ) / ${(upsample ** 2).toFixed(1)};\n`;
-  source += `  gl_FragColor = flux_to_noisy_rgba(avg_flux);`;
+
+  source += `
+  float avg_lens_flux = (
+`;
+  for (let i = -range; i <= range; i++) {
+    source += "    //\n";
+    for (let j = -range; j <= range; j++) {
+      // Gets center of texture pixel and adds offset to average over fine
+      // texture's pixels
+      source +=
+        `    texture2D(u_flux_tex, gl_FragCoord.xy / u_n_pix + vec2(${j.toFixed(
+          1
+        )}, ${i.toFixed(1)}) / u_n_pix_fine).y` +
+        (j === range && i === range ? "" : " +") +
+        "\n";
+    }
+  }
+  source += `  ) / ${(upsample ** 2).toFixed(1)};\n`;
+
+  source += `  gl_FragColor = flux_to_noisy_rgba(avg_flux, avg_lens_flux);`;
   source += "\n}";
 
   return source;

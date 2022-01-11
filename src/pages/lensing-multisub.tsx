@@ -51,10 +51,31 @@ const hstRes = 0.05;
 const euclidRes = 0.1;
 const rubinRes = 0.7;
 // Other constants
+const TARGET_RANGE = 2.5; // arcsec
 const INIT_LENS_LIGHT_SCALE = 60.0;
 const N_SH = 50;
-const X_SH_OFFSETS = Math.random() - 0.5;
-const Y_SH_OFFSETS = Math.random() - 0.5;
+const M_SH_MIN = 1e9; // MSUN
+const M_SH_MAX = 1e10; // MSUN
+
+const sampleSHParams = (n: number) => {
+  const x_shs = Array.from(
+    { length: n },
+    () => 2 * TARGET_RANGE * (Math.random() - 0.5)
+  );
+  const y_shs = Array.from(
+    { length: n },
+    () => 2 * TARGET_RANGE * (Math.random() - 0.5)
+  );
+  // Sample from bounded Pareto distribution with alpha = 1 (p(M) ~ 1 / M**2)
+  const M_200cs = Array.from({ length: n }, () => {
+    const u = Math.random();
+    return (
+      (-(u * M_SH_MAX - u * M_SH_MIN - M_SH_MAX) / (M_SH_MAX * M_SH_MIN)) **
+      (-1 / 1)
+    );
+  });
+  return { x_shs, y_shs, M_200cs };
+};
 
 const Button = styled.button`
   background-color: ${({ selected }) => (selected ? "#6c757d" : "#ffffff")};
@@ -184,15 +205,15 @@ const SourceControls = ({
       label="Horizontal position"
       value={x}
       set={setX}
-      min={-2.5}
-      max={2.5}
+      min={-TARGET_RANGE}
+      max={TARGET_RANGE}
     />
     <ParamControls
       label="Vertical position"
       value={y}
       set={setY}
-      min={-2.5}
-      max={2.5}
+      min={-TARGET_RANGE}
+      max={TARGET_RANGE}
     />
     <ParamControls
       label="Orientation"
@@ -262,7 +283,7 @@ const LensControls = ({
       value={r_ein}
       set={setRein}
       min={0.0001}
-      max={2.5}
+      max={TARGET_RANGE}
       description="Sets the size of the lens"
     />
     <Button
@@ -300,34 +321,10 @@ const ShearControls = ({ gamma_1, gamma_2, setGamma_1, setGamma_2 }) => (
   </div>
 );
 
-const SHControls = ({ x, y, M_200c, setX, setY, setM200c }) => (
+const SHControls = ({ resampleSHs }) => (
   <div>
     <h2>Subhalo parameters</h2>
-    <ParamControls
-      label="Horizontal position"
-      value={x}
-      set={setX}
-      min={-2.5}
-      max={2.5}
-    />
-    <ParamControls
-      label="Vertical position"
-      value={y}
-      set={setY}
-      min={-2.5}
-      max={2.5}
-    />
-    <ParamControls
-      label="Mass"
-      value={Math.log10(M_200c)}
-      set={(newVal: number) => setM200c(10 ** newVal)}
-      min={5}
-      max={10.5}
-      description={
-        "The mass is that of a sphere centered on the subhalo in " +
-        "which the average density is 200 times rho_cr"
-      }
-    />
+    <Button onClick={() => resampleSHs()}>Resample subhalos</Button>
   </div>
 );
 
@@ -460,9 +457,7 @@ const Page = () => {
   const [gamma_1, setGamma_1] = useState(0.007);
   const [gamma_2, setGamma_2] = useState(0.01);
   // Subhalo parameters
-  const [x_sh, setXsh] = useState(-1.1);
-  const [y_sh, setYsh] = useState(-1.1);
-  const [M_200c, setM200c] = useState(1e10);
+  const [shParams, setSHParams] = useState(sampleSHParams(N_SH));
   const tau = 6.0;
   // Telescope parameters
   const [res, setRes] = useState(euclidRes);
@@ -473,9 +468,8 @@ const Page = () => {
   // Intermediate flux scale
   const maxFlux = highFlux; // TODO: figure out how to reduce flux quantization... :[
   // Image constants
-  const targetRange = 2.5; // arcsec
   const canvasDim = 400; // final canvas size
-  const nPix = getNPix(canvasDim, targetRange, res); // final size in pixels
+  const nPix = getNPix(canvasDim, TARGET_RANGE, res); // final size in pixels
   const range = (nPix * res) / 2; // arcsec
   const nPixFine = UPSAMPLE * nPix; // fine grid pixel size
   // Noise
@@ -485,7 +479,13 @@ const Page = () => {
   );
 
   // Convert from virial to scale subhalo parameters
-  const { rho_s, r_s } = virialToScale(M_200c);
+  const rho_ss = new Array(N_SH);
+  const r_ss = new Array(N_SH);
+  for (let i = 0; i < N_SH; i++) {
+    const { rho_s, r_s } = virialToScale(shParams.M_200cs[i]);
+    rho_ss[i] = rho_s;
+    r_ss[i] = r_s;
+  }
 
   const drawSource = (gl: WebGLRenderingContext) => {
     const srcProgInfo = twgl.createProgramInfo(gl, [vsSource, fsSrcSource]);
@@ -556,10 +556,10 @@ const Page = () => {
       u_gamma_1: gamma_1,
       u_gamma_2: gamma_2,
       // Subhalo
-      u_x_sh: Array.from({ length: N_SH }, () => x_sh + X_SH_OFFSETS),
-      u_y_sh: Array.from({ length: N_SH }, () => y_sh + Y_SH_OFFSETS),
-      u_rho_s: new Array(N_SH).fill(rho_s),
-      u_r_s: new Array(N_SH).fill(r_s),
+      u_x_sh: shParams.x_shs,
+      u_y_sh: shParams.y_shs,
+      u_rho_s: rho_ss,
+      u_r_s: r_ss,
       u_tau: new Array(N_SH).fill(tau),
       // Misc
       u_range: range,
@@ -641,17 +641,19 @@ const Page = () => {
     ctx.stroke();
 
     // Subhalo dot
-    ctx.beginPath();
-    ctx.arc(
-      (x_sh * scale) / res,
-      -(y_sh * scale) / res, // since axis is flipped
-      3,
-      0,
-      2 * Math.PI,
-      false
-    );
-    ctx.fillStyle = "#FF0000";
-    ctx.fill();
+    for (let i = 0; i < N_SH; i++) {
+      ctx.beginPath();
+      ctx.arc(
+        (shParams.x_shs[i] * scale) / res,
+        -(shParams.y_shs[i] * scale) / res, // since axis is flipped
+        3,
+        0,
+        2 * Math.PI,
+        false
+      );
+      ctx.fillStyle = "#FF0000";
+      ctx.fill();
+    }
 
     ctx.restore();
   };
@@ -720,7 +722,7 @@ const Page = () => {
               setSigmaN={setSigmaN}
               setRes={(res: number) => {
                 setRes(res);
-                const newNPix = getNPix(canvasDim, targetRange, res);
+                const newNPix = getNPix(canvasDim, TARGET_RANGE, res);
                 setNoiseArray(getNoiseTexArray(newNPix ** 2, noiseRange));
               }}
               resampleNoise={() =>
@@ -787,18 +789,7 @@ const Page = () => {
                 />
               </div>
             </div>
-            <SHControls
-              x={x_sh}
-              y={y_sh}
-              M_200c={M_200c}
-              // c_200c={c_200c}
-              // tau={tau}
-              setX={setXsh}
-              setY={setYsh}
-              setM200c={setM200c}
-              // setc200c={setc200c}
-              // setTau={setTau}
-            />
+            <SHControls resampleSHs={() => setSHParams(sampleSHParams(N_SH))} />
             <LensControls
               phiDeg={phi_lDeg}
               q={q_l}
