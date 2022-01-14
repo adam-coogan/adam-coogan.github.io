@@ -54,7 +54,7 @@ const rubinRes = 0.7;
 const TARGET_RANGE = 2.5; // arcsec
 const INIT_LENS_LIGHT_SCALE = 60.0;
 const N_SH = 50;
-const M_SH_MIN = 1e9; // MSUN
+const M_SH_MIN = 1e8; // MSUN
 const M_SH_MAX = 1e10; // MSUN
 
 const sampleSHParams = (n: number) => {
@@ -465,6 +465,8 @@ const Page = () => {
   // Final flux scale
   const lowFlux = -3;
   const highFlux = lensLightScale === 0 ? 23 : INIT_LENS_LIGHT_SCALE;
+  const lowFluxSrc = lowFlux;
+  const highFluxSrc = highFlux;
   // Intermediate flux scale
   const maxFlux = highFlux; // TODO: figure out how to reduce flux quantization... :[
   // Image constants
@@ -512,8 +514,8 @@ const Page = () => {
       u_index: index,
       u_r_e: r_e,
       u_I_e: I_e,
-      u_low_flux: lowFlux,
-      u_high_flux: highFlux,
+      u_low_flux: lowFluxSrc,
+      u_high_flux: highFluxSrc,
     };
     twgl.setUniforms(srcProgInfo, uniforms);
     // Draw
@@ -624,21 +626,23 @@ const Page = () => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     ctx.save();
+    ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
 
     // Main lens ellipse
-    ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
-    ctx.strokeStyle = "#FF0000";
-    ctx.beginPath();
-    ctx.ellipse(
-      (x_l * scale) / res,
-      -(y_l * scale) / res, // since axis is flipped
-      (r_ein / q_l / res) * scale,
-      ((r_ein * q_l) / res) * scale,
-      -(phi_lDeg * Math.PI) / 180,
-      0,
-      2 * Math.PI
-    );
-    ctx.stroke();
+    if (lensLightScale === 0) {
+      ctx.strokeStyle = "#FF0000";
+      ctx.beginPath();
+      ctx.ellipse(
+        (x_l * scale) / res,
+        -(y_l * scale) / res, // since axis is flipped
+        (r_ein / q_l / res) * scale,
+        ((r_ein * q_l) / res) * scale,
+        -(phi_lDeg * Math.PI) / 180,
+        0,
+        2 * Math.PI
+      );
+      ctx.stroke();
+    }
 
     // Subhalo dot
     for (let i = 0; i < N_SH; i++) {
@@ -646,7 +650,7 @@ const Page = () => {
       ctx.arc(
         (shParams.x_shs[i] * scale) / res,
         -(shParams.y_shs[i] * scale) / res, // since axis is flipped
-        3,
+        2,
         0,
         2 * Math.PI,
         false

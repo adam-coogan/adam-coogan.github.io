@@ -34,7 +34,7 @@ import { randn } from "../utils/utils";
  *      * Need to use a different color scheme, blending and transparency
  *      * Unclear how to map r_ein to r_e and what flux scale to use. Could use
  *        mass-to-light ratio?
- * -[ ] Add subhalo population
+ * -[X] Add subhalo population
  * -[ ] Generate subhalo shader with constants matching tsx
  * -[?] Visualize subhalo's impact. Maybe show difference between images with
  *      and without subhalo?
