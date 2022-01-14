@@ -28,7 +28,7 @@ const Text = () => {
         <a href="https://inspirehep.net/authors/1631088">InspireHEP</a>, and
         some highlights here:
       </p>
-      {PaperData.map((data, index) => (
+      {PaperData.map((data, index: number) => (
         <Paper key={`paper_${index}`} {...data} />
       ))}
     </TextContainer>
