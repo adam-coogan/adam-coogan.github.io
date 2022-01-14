@@ -3,8 +3,8 @@ import ReactTooltip from "react-tooltip";
 import Layout from "../components/layout";
 import ImageCanvas from "../components/lensing/imagecanvas";
 import LensControls from "../components/lensing/lenscontrols";
+import SHControls from "../components/lensing/shcontrols";
 import ShearControls from "../components/lensing/shearcontrols";
-import SHPopControls from "../components/lensing/shpopcontrols";
 import SourceCanvas from "../components/lensing/sourcecanvas";
 import SourceControls from "../components/lensing/sourcecontrols";
 import TelescopeControls from "../components/lensing/telescopecontrols";
@@ -16,15 +16,10 @@ import {
   UPSAMPLE,
 } from "../utils/constants";
 import { getFSLensSource } from "../utils/shaders";
-import { virialToScale } from "../utils/tnfwwebgl";
-import { getNoiseTexArray, getNPix, sampleSHParams } from "../utils/utils";
+import { getNoiseTexArray, getNPix } from "../utils/utils";
 
-/*
- * Generate images with a population of 50 subhalos.
- */
-
-const N_SH = 50;
-const fsLensSource = getFSLensSource(N_SH);
+// Other constants
+const fsLensSource = getFSLensSource(1);
 
 const Page = () => {
   // Source parameters
@@ -46,15 +41,15 @@ const Page = () => {
   const [gamma_1, setGamma_1] = useState(0.007);
   const [gamma_2, setGamma_2] = useState(0.01);
   // Subhalo parameters
-  const [shParams, setSHParams] = useState(sampleSHParams(N_SH));
+  const [x_sh, setXsh] = useState(-1.1);
+  const [y_sh, setYsh] = useState(-1.1);
+  const [M_200c, setM200c] = useState(1e10);
   // Telescope parameters
   const [res, setRes] = useState(0.1);
   const [sigma_n, setSigmaN] = useState(0.5);
   // Final flux scale
   const lowFlux = -3;
   const highFlux = lensLightScale === 0 ? 23 : INIT_LENS_LIGHT_SCALE;
-  const lowFluxSrc = lowFlux;
-  const highFluxSrc = highFlux;
   // Intermediate flux scale
   const maxFlux = highFlux; // TODO: figure out how to reduce flux quantization... :[
   // Image constants
@@ -67,15 +62,6 @@ const Page = () => {
   const [noiseArray, setNoiseArray] = useState(
     getNoiseTexArray(nPix ** 2, noiseRange)
   );
-
-  // Convert from virial to scale subhalo parameters
-  const rho_ss = new Array(N_SH);
-  const r_ss = new Array(N_SH);
-  for (let i = 0; i < N_SH; i++) {
-    const { rho_s, r_s } = virialToScale(shParams.M_200cs[i]);
-    rho_ss[i] = rho_s;
-    r_ss[i] = r_s;
-  }
 
   return (
     <Layout>
@@ -193,10 +179,10 @@ const Page = () => {
                 gamma_1={gamma_1}
                 gamma_2={gamma_2}
                 // Subhalo parameters
-                x_sh={shParams.x_shs}
-                y_sh={shParams.y_shs}
-                M_200c={shParams.M_200cs}
-                tau={new Array(N_SH).fill(TAU)}
+                x_sh={[x_sh]}
+                y_sh={[y_sh]}
+                M_200c={[M_200c]}
+                tau={[TAU]}
                 // Misc parameters
                 noiseArray={noiseArray}
                 noiseRange={noiseRange}
@@ -211,8 +197,15 @@ const Page = () => {
                 canvasDim={canvasDim}
               />
             </div>
-            <SHPopControls
-              resampleSHs={() => setSHParams(sampleSHParams(N_SH))}
+            <SHControls
+              x={x_sh}
+              y={y_sh}
+              M_200c={M_200c}
+              setX={setXsh}
+              setY={setYsh}
+              setM200c={setM200c}
+              // setc200c={setc200c}
+              // setTau={setTau}
             />
             <LensControls
               phiDeg={phi_lDeg}

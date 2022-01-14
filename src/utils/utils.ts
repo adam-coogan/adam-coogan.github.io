@@ -1,4 +1,42 @@
 import { viridis } from "scale-color-perceptual";
+import { M_SH_MAX, M_SH_MIN, TARGET_RANGE } from "./constants";
+
+export const sampleSHParams = (n: number) => {
+  const x_shs = Array.from(
+    { length: n },
+    () => 2 * TARGET_RANGE * (Math.random() - 0.5)
+  );
+  const y_shs = Array.from(
+    { length: n },
+    () => 2 * TARGET_RANGE * (Math.random() - 0.5)
+  );
+  // Sample from bounded Pareto distribution with alpha = 1 (p(M) ~ 1 / M**2)
+  const M_200cs = Array.from({ length: n }, () => {
+    const u = Math.random();
+    return (
+      (-(u * M_SH_MAX - u * M_SH_MIN - M_SH_MAX) / (M_SH_MAX * M_SH_MIN)) **
+      (-1 / 1)
+    );
+  });
+  return { x_shs, y_shs, M_200cs };
+};
+
+/*
+ * Generates an array containing truncated Gaussian noise to be used in a webgl
+ * texture.
+ */
+export const getNoiseTexArray = (size: number, noiseRange: number) =>
+  // Clamp to noise range, then rescale to [0, 1]
+  Uint8Array.from({ length: size }, () =>
+    Math.floor(
+      (256 *
+        (Math.max(-noiseRange, Math.min(noiseRange, randn())) + noiseRange)) /
+        (2 * noiseRange)
+    )
+  );
+
+export const getNPix = (canvasDim: number, targetRange: number, res: number) =>
+  Math.min(canvasDim, Math.ceil((2 * targetRange) / res));
 
 const getCoord = (idx: number, nPix: number, res: number) =>
   (((nPix - 1) * res) / 2) * ((2 * idx) / (nPix - 1) - 1);

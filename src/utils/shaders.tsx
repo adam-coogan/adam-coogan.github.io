@@ -1,3 +1,5 @@
+import { UPSAMPLE } from "./constants";
+
 /*
  * Shaders for lensing.
  *
@@ -117,7 +119,7 @@ void main() {
 /*
  * Ray-traces and evaluates source.
  */
-export const fsLensSource = `
+export const getFSLensSource = (n_sh: number) => `
 precision mediump float;
 
 // Source parameters
@@ -142,7 +144,7 @@ uniform float u_gamma_1;
 uniform float u_gamma_2;
 
 // Subhalo parameters
-#define N_SH 10
+#define N_SH ${Math.trunc(n_sh)}
 uniform float u_x_sh[N_SH];
 uniform float u_y_sh[N_SH];
 uniform float u_rho_s[N_SH];
@@ -320,7 +322,7 @@ void main() {
 /*
  * Postprocessing: pixelates and adds noise.
  */
-export const getFSPost = (upsample: number) => {
+const getFSPost = (upsample: number) => {
   let source = `
 precision mediump float;
 
@@ -410,3 +412,6 @@ void main() {
 
   return source;
 };
+
+// Generate post-processesing shader
+export const fsPostSource = getFSPost(UPSAMPLE);
