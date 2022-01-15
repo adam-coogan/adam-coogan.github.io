@@ -47,6 +47,7 @@ const Page = () => {
   const [gamma_2, setGamma_2] = useState(0.01);
   // Subhalo parameters
   const [shParams, setSHParams] = useState(sampleSHParams(N_SH));
+  const [hideSHs, setHideSHs] = useState(true);
   // Telescope parameters
   const [res, setRes] = useState(0.1);
   const [sigma_n, setSigmaN] = useState(0.5);
@@ -122,8 +123,8 @@ const Page = () => {
                 index={index}
                 r_e={r_e}
                 I_e={I_e}
-                lowFlux={lowFlux}
-                highFlux={highFlux}
+                lowFlux={lowFluxSrc}
+                highFlux={highFluxSrc}
                 range={range}
                 canvasDim={canvasDim}
               />
@@ -197,6 +198,7 @@ const Page = () => {
                 y_sh={shParams.y_shs}
                 M_200c={shParams.M_200cs}
                 tau={new Array(N_SH).fill(TAU)}
+                hideSHs={hideSHs}
                 // Misc parameters
                 noiseArray={noiseArray}
                 noiseRange={noiseRange}
@@ -213,6 +215,10 @@ const Page = () => {
             </div>
             <SHPopControls
               resampleSHs={() => setSHParams(sampleSHParams(N_SH))}
+              hideSHs={hideSHs}
+              toggleHideSHs={() =>
+                hideSHs ? setHideSHs(false) : setHideSHs(true)
+              }
             />
             <LensControls
               phiDeg={phi_lDeg}

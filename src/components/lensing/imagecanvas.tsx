@@ -35,6 +35,7 @@ interface ImageCanvasProps {
   y_sh: number[];
   M_200c: number[];
   tau: number[];
+  hideSHs?: boolean;
   // Misc parameters
   noiseArray: Uint8Array;
   noiseRange: number;
@@ -74,6 +75,7 @@ const ImageCanvas = ({
   y_sh,
   M_200c,
   tau,
+  hideSHs,
   // Misc parameters
   noiseArray,
   noiseRange,
@@ -224,19 +226,20 @@ const ImageCanvas = ({
     }
 
     // Subhalo dot
-    for (let i = 0; i < n_sh; i++) {
-      ctx.beginPath();
-      ctx.arc(
-        (x_sh[i] * scale) / res,
-        -(y_sh[i] * scale) / res, // since axis is flipped
-        2,
-        0,
-        2 * Math.PI,
-        false
-      );
-      ctx.fillStyle = "#FF0000";
-      ctx.fill();
-    }
+    if (!hideSHs)
+      for (let i = 0; i < n_sh; i++) {
+        ctx.beginPath();
+        ctx.arc(
+          (x_sh[i] * scale) / res,
+          -(y_sh[i] * scale) / res, // since axis is flipped
+          2,
+          0,
+          2 * Math.PI,
+          false
+        );
+        ctx.fillStyle = "#FF0000";
+        ctx.fill();
+      }
 
     ctx.restore();
   };
