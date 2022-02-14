@@ -209,21 +209,21 @@ const ImageCanvas = ({
     ctx.save();
     ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
 
-    // Main lens ellipse
-    if (lensLightScale === 0) {
-      ctx.strokeStyle = "#FF0000";
-      ctx.beginPath();
-      ctx.ellipse(
-        (x_l * scale) / res,
-        -(y_l * scale) / res, // since axis is flipped
-        (r_ein / q_l / res) * scale,
-        ((r_ein * q_l) / res) * scale,
-        -(phi_lDeg * Math.PI) / 180,
-        0,
-        2 * Math.PI
-      );
-      ctx.stroke();
-    }
+    // // Main lens ellipse
+    // if (lensLightScale === 0) {
+    //   ctx.strokeStyle = "#FF0000";
+    //   ctx.beginPath();
+    //   ctx.ellipse(
+    //     (x_l * scale) / res,
+    //     -(y_l * scale) / res, // since axis is flipped
+    //     (r_ein / q_l / res) * scale,
+    //     ((r_ein * q_l) / res) * scale,
+    //     -(phi_lDeg * Math.PI) / 180,
+    //     0,
+    //     2 * Math.PI
+    //   );
+    //   ctx.stroke();
+    // }
 
     // Subhalo dot
     if (!hideSHs)
