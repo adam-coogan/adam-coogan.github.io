@@ -1,3 +1,21 @@
+- title: Efficient Template Bank Generation with Differentiable Waveforms
+  authors:
+    - Adam Coogan
+    - Thomas D. P. Edwards
+    - Horng Sheng Chia
+    - Richard N. George
+    - Katherine Freese
+    - Cody Messick
+    - Christian N. Setzer
+    - Christoph Weniger
+    - Aaron Zimmerman
+  journal: Submitted
+  arxiv: 2202.09380
+  tags:
+    - gravitational-waves
+    - machine-learning
+
+
 - title: Measuring the dark matter environments of black hole binaries with gravitational waves
   authors:
     - Adam Coogan
@@ -5,17 +23,17 @@
     - Daniele Gaggero
     - Bradley J. Kavanagh
     - David A. Nichols
-  journal: Submitted
+  journal: Physical Review D 105 (2022) 4, 043009
   arxiv: 2108.04154
   tags:
     - gravitational-waves
 
-- title: Strong-lensing source reconstruction with variationally optimised Gaussian processes
+- title: Strong-lensing source reconstruction with variationally-optimised Gaussian processes
   authors:
     - Konstantin Karchev
     - Adam Coogan
     - Christoph Weniger
-  journal: Submitted
+  journal: Monthly Notices of the Royal Astronomical Society, stac311
   arxiv: 2105.09465
   tags:
     - lensing
@@ -32,31 +50,31 @@
     - lensing
     - machine-learning
 
-- title: "Differentiable Strong Lensing: Uniting Gravity and Neural Nets through Differentiable Probabilistic Programming"
-  authors:
-    - Marco Chianese
-    - Adam Coogan
-    - Paul Hofma
-    - Sydney Otten
-    - Christoph Weniger
-  journal: Monthly Notices of the Royal Astronomical Society 496 (2020) 1, 381-393
-  arxiv: 1910.06157
-  tags:
-    - lensing
-    - machine-learning
+# - title: "Differentiable Strong Lensing: Uniting Gravity and Neural Nets through Differentiable Probabilistic Programming"
+#   authors:
+#     - Marco Chianese
+#     - Adam Coogan
+#     - Paul Hofma
+#     - Sydney Otten
+#     - Christoph Weniger
+#   journal: Monthly Notices of the Royal Astronomical Society 496 (2020) 1, 381-393
+#   arxiv: 1910.06157
+#   tags:
+#     - lensing
+#     - machine-learning
 
-- title: Primordial Black Holes as Silver Bullets for New Physics at the Weak Scale
-  authors:
-    - Gianfranco Bertone
-    - Adam Coogan
-    - Daniele Gaggero
-    - Bradley J. Kavanagh
-    - Christoph Weniger
-  journal: Physical Review D 100 (2019) 12, 123013
-  arxiv: 1905.01238
-  tags:
-    - gravitational-waves
-    - indirect-detection
+# - title: Primordial Black Holes as Silver Bullets for New Physics at the Weak Scale
+#   authors:
+#     - Gianfranco Bertone
+#     - Adam Coogan
+#     - Daniele Gaggero
+#     - Bradley J. Kavanagh
+#     - Christoph Weniger
+#   journal: Physical Review D 100 (2019) 12, 123013
+#   arxiv: 1905.01238
+#   tags:
+#     - gravitational-waves
+#     - indirect-detection
 
 - title: Direct Detection of Hawking Radiation from Asteroid-Mass Primordial Black Holes
   authors:
@@ -82,20 +100,20 @@
   authors:
     - Adam Coogan
     - Stefano Profumo
-  journal: Physical Review D 96 (2017) 8, 083020 • [arXiv]
+  journal: Physical Review D 96 (2017) 8, 083020
   arxiv: 1705.09664
   tags:
     - indirect-detection
 
-- title: Antihelium from Dark Matter
-  authors:
-    - Eric Carlson
-    - Adam Coogan
-    - Tim Linden
-    - Stefano Profumo
-    - Alejandro Ibarra
-    - Sebastian Wild
-  journal: Physical Review D 89 (2014) 7, 076005
-  arxiv: 1401.2461
-  tags:
-    - indirect-detection
+# - title: Antihelium from Dark Matter
+#   authors:
+#     - Eric Carlson
+#     - Adam Coogan
+#     - Tim Linden
+#     - Stefano Profumo
+#     - Alejandro Ibarra
+#     - Sebastian Wild
+#   journal: Physical Review D 89 (2014) 7, 076005
+#   arxiv: 1401.2461
+#   tags:
+#     - indirect-detection
