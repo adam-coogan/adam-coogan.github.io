@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "gatsby"
 import styled from "styled-components";
 import DefaultColumnContainer from "./columncontainer";
 import DefaultTextContainer from "./textcontainer";
@@ -28,6 +29,8 @@ const Text = () => (
         <strong>Strong gravitational lensing.</strong> How can we use machine
         learning to probe the smallest dark matter structures in the universe in
         images of dramatically distorted galaxies?
+        <br/>
+        Check out <Link to="/interactive-lensing/" style={{color: "aqua"}}>my interactive visualization</Link> to learn more!
       </li>
       <li>
         <strong>Gravitational wave probes of new physics.</strong> What imprint
