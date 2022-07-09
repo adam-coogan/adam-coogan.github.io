@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import ColumnContainer from "./columncontainer";
 import Column from "./column";
-import DefaultTextContainer from "./textcontainer";
+import TextContainer from "./textcontainer";
 import DefaultImage from "./image";
 import Switzerland from "../images/switzerland.jpg";
 import Paper from "./paper";
@@ -12,10 +12,6 @@ const Image = styled(DefaultImage)`
   @media (max-width: 750px) {
     display: none;
   }
-`;
-
-const TextContainer = styled(DefaultTextContainer)`
-  padding: 75px;
 `;
 
 const Text = () => {
