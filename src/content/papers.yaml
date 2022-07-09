@@ -1,3 +1,16 @@
+- title: Estimating the warm dark matter mass from strong lensing images with truncated marginal neural ratio estimation
+  authors:
+    - Noemi Anau Montel
+    - Adam Coogan
+    - Camila Correa
+    - Konstantin Karchev
+    - Christoph Weniger
+  journal: Accepted by Monthly Notices of the Royal Astronomical Society with minor revisions
+  arxiv: 2205.09126
+  tags:
+    - lensing
+    - machine-learning
+
 - title: Efficient Template Bank Generation with Differentiable Waveforms
   authors:
     - Adam Coogan
@@ -9,7 +22,7 @@
     - Christian N. Setzer
     - Christoph Weniger
     - Aaron Zimmerman
-  journal: Submitted
+  journal: Accepted by Physical Review D with minor revisions
   arxiv: 2202.09380
   tags:
     - gravitational-waves
