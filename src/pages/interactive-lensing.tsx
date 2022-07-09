@@ -81,7 +81,7 @@ const Page = () => {
         paddingBottom: `${padding / 2}px`,
       }}
     >
-      <h1>Probing dark matter with strong gravitational lensing</h1>
+      <h1>What's this all about?</h1>
       <p>
         A range of observations on galactic through cosmological scales demand
         the existence of <b>dark matter</b>, which outweighs normal matter by
@@ -350,9 +350,11 @@ const Page = () => {
             margin: "auto",
           }}
         >
-          {intro}
-          <hr />
+          <h1>Probing dark matter with strong gravitational lensing</h1>
           {visualization}
+          <br/>
+          <hr />
+          {intro}
         </div>
       </div>
     </Layout>
