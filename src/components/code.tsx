@@ -63,6 +63,14 @@ const Code = () => (
       </p>
       <ul>
         <li>
+          <ACode href="https://github.com/adam-coogan/diffbank">diffbank</ACode>
+          : gravitational wave template bank generation made easy with{" "}
+          <ACode href="https://github.com/google/jax">jax</ACode>
+          's{" "}
+          <A href="https://en.wikipedia.org/wiki/Automatic_differentiation">automatic differentiation</A>
+          . Created with Thomas Edwards.
+        </li>
+        <li>
           <ACode href="https://github.com/LoganAMorrison/Hazma">Hazma</ACode>
           : a python toolkit to compute indirect detection constraints for dark
           matter models producing MeV gamma rays. Co-developed with Logan Morrison
@@ -91,7 +99,7 @@ const Code = () => (
         <li>
           <A href="https://tasty-base.web.app/">Tasty Base</A>: a React + Firebase
           app for keeping track of your recipes and finding new ones. I built
-          Tasty Base with my partner, Laura Henn, who’s a web developer. Source
+          Tasty Base with my partner, Laura Henn, who’s a cloud developer. Source
           code <A href="https://github.com/lhenn/tasty-base">here</A>.
         </li>
       </ul>
