@@ -10,8 +10,8 @@ const Image = styled.div<ImageProps>`
   background-size: cover;
   width: 100%;
   height: 100%;
-  min-height: 300px;
-  background-position: center;
+  min-height: 900px;
+  background-position: top;
 `;
 
 export default Image;
