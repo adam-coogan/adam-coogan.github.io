@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
  * A canvas component for a user-specified context type.
  */
 
-const useCanvas = (ctxName: string, draw: (gl: RenderingContext) => void) => {
+const useCanvas = (ctxName: string, draw: (gl: CanvasRenderingContext2D) => void) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const useCanvas = (ctxName: string, draw: (gl: RenderingContext) => void) => {
 
 interface CanvasProps {
   ctxName: string;
-  draw: (gl: RenderingContext) => void;
+  draw: (gl: CanvasRenderingContext2D) => void;
   [rest: string]: any;
 }
 

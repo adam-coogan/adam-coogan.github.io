@@ -1,4 +1,4 @@
-import React from "React";
+import React from "react";
 import Button from "./button";
 
 const SHPopControls = ({ resampleSHs, hideSHs, toggleHideSHs }) => (

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "gatsby"
+import { Link } from "gatsby";
 import styled from "styled-components";
 import DefaultColumnContainer from "./columncontainer";
 import DefaultTextContainer from "./textcontainer";
@@ -26,26 +26,30 @@ const Text = () => (
     <h1>Research themes</h1>
     <ul>
       <li>
-        <strong>Strong gravitational lensing.</strong> How can we use machine
-        learning to probe the smallest dark matter structures in the universe in
-        images of dramatically distorted galaxies?
-        <br/>
-        Check out <Link to="/interactive-lensing/" style={{color: "aqua"}}>my interactive visualization</Link> to learn more!
+        <strong>Strong gravitational lensing.</strong>
+        How can we use machine learning to probe the smallest dark matter
+        structures in the universe in images of dramatically distorted galaxies?
+        <br />
+        Check out{" "}
+        <Link to="/interactive-lensing/" style={{ color: "aqua" }}>
+          my interactive visualization
+        </Link>{" "}
+        to learn more!
       </li>
       <li>
-        <strong>Gravitational wave probes of new physics.</strong> What imprint
-        does a black hole binary’s environment leave on its gravitational wave
-        signal? How can we uncover this it in data?
+        <strong>Gravitational wave probes of new physics.</strong>
+        What imprint does a black hole binary’s environment leave on its
+        gravitational wave signal? How can we uncover this it in data?
       </li>
       <li>
-        <strong>Dark matter indirect detection.</strong> How can we best utilize
-        cosmic rays and gamma rays to learn about the fundamental nature of dark
-        matter, be it a particle or something else?
+        <strong>Dark matter indirect detection.</strong>
+        How can we best utilize cosmic rays and gamma rays to learn about the
+        fundamental nature of dark matter, be it a particle or something else?
       </li>
       <li>
-        <strong>Machine learning and statistics.</strong> What new precision
-        data analyses can we unlock using modern machine learning and
-        computational statistics?
+        <strong>Machine learning and statistics.</strong>
+        What new precision data analyses can we unlock using modern machine
+        learning and computational statistics?
       </li>
     </ul>
   </TextContainer>

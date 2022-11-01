@@ -16,27 +16,25 @@ const Anchor = styled.a`
   visibility: hidden;
 `;
 
-const Home = () => {
-  return (
-    <Layout>
-      <Anchor id="intro"></Anchor>
-      <Intro />
+const Home = () => (
+  <Layout>
+    <Anchor id="intro" />
+    <Intro />
 
-      <Anchor id="research"></Anchor>
-      <Research />
+    <Anchor id="research" />
+    <Research />
 
-      <Anchor id="papers"></Anchor>
-      <Papers />
+    <Anchor id="papers" />
+    <Papers />
 
-      <Sierras />
+    <Sierras />
 
-      <Anchor id="code"></Anchor>
-      <Code />
+    <Anchor id="code" />
+    <Code />
 
-      <Anchor id="non-work"></Anchor>
-      <NonWork />
-    </Layout>
-  );
-};
+    <Anchor id="non-work" />
+    <NonWork />
+  </Layout>
+);
 
 export default Home;
