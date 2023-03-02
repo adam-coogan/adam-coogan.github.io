@@ -20,7 +20,8 @@ const PixelatedCanvas: any = styled(Canvas)`
 `;
 
 /*
- * NRE
+ * Trains a network to give a point estimate of the position of a Gaussian blob
+ * from a noisy image of the blob.
  */
 
 const nx = 16;
